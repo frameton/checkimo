@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { randomBytes } from 'node:crypto';
 import * as argon2 from 'argon2';
 import { PrismaService } from 'prisma/prisma.service';
+import { Role, User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -13,11 +14,14 @@ export class AuthService {
 
   /* ---------- helpers ---------- */
 
-  private async signAccess(userId: string) {
-    return this.jwt.signAsync({ sub: userId });
+   private async signAccess(user: Pick<User, 'id' | 'role'>) {
+    return this.jwt.signAsync(
+      { sub: user.id, role: user.role },
+      { secret: process.env.JWT_ACCESS_SECRET },
+    );
   }
 
-  private async saveRefresh(userId: string, token: string) {
+ private async saveRefresh(userId: string, token: string) {
     await this.prisma.user.update({
       where: { id: userId },
       data: { hashedRefreshToken: await argon2.hash(token) },
@@ -28,31 +32,42 @@ export class AuthService {
 
   /** Validation lors du login */
   async validateUser(email: string, password: string) {
-    const user = await this.prisma.user.findUnique({ where: { email } });
-    if (!user || !(await argon2.verify(user.password, password)))
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      select: { id: true, email: true, password: true, role: true },
+    });
+    if (!user || !(await argon2.verify(user.password, password))) {
       throw new UnauthorizedException();
-    return user;
+    }
+    return user;  // contient désormais .role
   }
 
   /** Login → renvoie access + refresh */
-  async login(userId: string) {
-    const access = await this.signAccess(userId);
-    const refresh = randomBytes(64).toString('hex');
-    await this.saveRefresh(userId, refresh);
-    return { accessToken: access, refreshToken: refresh };
+  async login(user: Pick<User, 'id' | 'role'>) {
+    const accessToken = await this.signAccess(user);
+    const refreshToken = randomBytes(64).toString('hex');
+    await this.saveRefresh(user.id, refreshToken);
+    return { accessToken, refreshToken };
   }
 
   /** Rotation refresh */
   async refresh(userId: string, presented: string) {
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user?.hashedRefreshToken || !(await argon2.verify(user.hashedRefreshToken, presented)))
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, role: true, hashedRefreshToken: true },
+    });
+    if (
+      !user?.hashedRefreshToken ||
+      !(await argon2.verify(user.hashedRefreshToken, presented))
+    ) {
       throw new ForbiddenException();
+    }
 
-    const access = await this.signAccess(userId);
-    const newRefresh = randomBytes(64).toString('hex');
-    await this.saveRefresh(userId, newRefresh);
+    const accessToken = await this.signAccess(user);
+    const newRefreshToken = randomBytes(64).toString('hex');
+    await this.saveRefresh(user.id, newRefreshToken);
 
-    return { accessToken: access, refreshToken: newRefresh };
+    return { accessToken, refreshToken: newRefreshToken };
   }
 
   /** Logout → invalide le refresh */

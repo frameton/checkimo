@@ -3,6 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Request } from 'express';
 import { ConfigService } from '@nestjs/config';
+import { Role } from '@prisma/client';
 
 /** Récupère le cookie HTTP-only « refreshToken » */
 const cookieExtractor = (req: Request): string | null =>
@@ -10,6 +11,7 @@ const cookieExtractor = (req: Request): string | null =>
 
 interface RefreshPayload {
   sub: string; // id utilisateur
+  role: Role;
   iat: number;
   exp: number;
 }
@@ -28,6 +30,6 @@ export class RefreshStrategy extends PassportStrategy(Strategy, 'refresh') {
   validate(req: Request, payload: RefreshPayload) {
     const token = cookieExtractor(req);
     if (!token) throw new UnauthorizedException();
-    return { userId: payload.sub, refreshToken: token };
+    return { userId: payload.sub, role: payload.role, refreshToken: token };
   }
 }
