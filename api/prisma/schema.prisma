@@ -1,0 +1,34 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+/** Enum métier pour les rôles utilisateurs */
+enum Role {
+  ADMIN
+  USER
+  MANAGER
+}
+
+model User {
+  id                 String   @id @default(uuid())
+  email              String   @unique
+  password           String   // hash Argon2
+  firstName          String
+  lastName           String
+  role               Role     @default(USER)
+  hashedRefreshToken String?  // stocke le refresh‐token hashé (rotation possible)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
