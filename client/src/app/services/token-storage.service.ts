@@ -1,13 +1,23 @@
 import { environment } from '@/environments/environments';
-import { Injectable } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class TokenStorageService {
-  get token(): string | null {
+
+  private isBrowser: boolean;
+
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
+  }
+
+ get token(): string | null {
+    if (!this.isBrowser) return null;
     return localStorage.getItem(environment.TOKEN_NAME);
   }
 
   set token(value: string | null) {
+    if (!this.isBrowser) return;
     if (value) {
       localStorage.setItem(environment.TOKEN_NAME, value);
     } else {
@@ -16,10 +26,12 @@ export class TokenStorageService {
   }
 
   clear(): void {
+    if (!this.isBrowser) return;
     localStorage.removeItem(environment.TOKEN_NAME);
   }
 
   isExpired(token: string): boolean {
+    if (!this.isBrowser) return true;
     try {
       const [, payloadBase64] = token.split('.');
       const payload = JSON.parse(atob(payloadBase64));
@@ -30,6 +42,7 @@ export class TokenStorageService {
   }
 
   get decoded(): any | null {
+    if (!this.isBrowser) return null;
     const token = this.token;
     if (!token) return null;
     try {

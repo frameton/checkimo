@@ -7,6 +7,7 @@ import { routes } from './app/app.routes';
 import AppComponent from './app/app.component';
 import { importProvidersFrom } from '@angular/core';
 import { provideServerRendering } from '@angular/platform-server';
+import { provideAnimations } from '@angular/platform-browser/animations';
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -23,10 +24,7 @@ bootstrapApplication(AppComponent, {
       BrowserModule,
     ),
 
-    // provideAnimations(),
-
-    // Activation du Server-Side Rendering
-    provideServerRendering(),
+    provideAnimations(),
 
     // Routing : lazy-loading + navigation bloquante pour SSR
     provideRouter(
