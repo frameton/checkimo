@@ -1,0 +1,29 @@
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+}
+
+.menu-button {
+  display: none;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+// Responsive adjustments pour mobile
+@media (max-width: 600px) {
+  .menu-button {
+    display: inline-flex;
+  }
+
+  .logo {
+    font-size: 1.25rem;
+  }
+}

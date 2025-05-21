@@ -1,8 +1,10 @@
-<mat-toolbar color="primary">
-  <span>Checkimo</span>
-  <span class="spacer"></span>
-  <button mat-button *ngIf="!(auth.me$ | async)" routerLink="/login">Login</button>
-  <button mat-button *ngIf="auth.me$ | async" (click)="logout()">Logout</button>
-</mat-toolbar>
+<app-toolbar (menuToggle)="sidenav.toggle()"></app-toolbar>
+<mat-sidenav-container>
+  <mat-sidenav #sidenav mode="over">
+    <!-- Liens de navigation -->
+  </mat-sidenav>
 
-<router-outlet></router-outlet>
+  <mat-sidenav-content>
+    <router-outlet></router-outlet>
+  </mat-sidenav-content>
+</mat-sidenav-container>

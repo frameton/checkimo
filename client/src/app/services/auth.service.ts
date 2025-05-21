@@ -1,9 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, map, Observable, tap } from 'rxjs';
 import { TokenStorageService } from './token-storage.service';
 import { environment } from '@/environments/environments';
 import { ApiResponse } from '../models/api.model';
+import { isPlatformBrowser } from '@angular/common';
+import { User, UserProps } from '../models/user.model';
 
 /** Données renvoyées par /auth/login et /auth/refresh */
 export interface AuthPayload {
@@ -26,11 +28,49 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private tokenStorage: TokenStorageService,
+    @Inject(PLATFORM_ID) private platformId: Object,
   ) {
     const decoded = this.tokenStorage.decoded;
     if (decoded && this.tokenStorage.token && !this.tokenStorage.isExpired(this.tokenStorage.token)) {
       this.meSubject.next(decoded);
     }
+  }
+
+
+  public isLoggedIn(): boolean {
+    if (!isPlatformBrowser(this.platformId)) {
+      return false;
+    }
+    let token = this.tokenStorage.token;
+    if (!token) {
+      return false;
+    }
+    return true;
+  }
+
+  /** Observable qui émet `true`/`false` selon l’état de connexion */
+  public isLoggedIn$(): Observable<boolean> {
+    return this.me$.pipe(
+      map(user => !!user)
+    );
+  }
+
+  // Exemple de fonction privée pour décoder le token JWT
+  private decodeUserFromToken(token: string): User {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return {
+  id: payload.sub,
+  email: payload.email,
+  firstName: payload.firstName,
+  lastName: payload.lastName,
+  role: payload.role,
+  createdAt: payload.createdAt,
+  updatedAt: payload.updatedAt,
+  toJSON: function (): UserProps {
+    throw new Error('Function not implemented.');
+  },
+  fullName: ''
+};
   }
 
   /**

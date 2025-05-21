@@ -1,0 +1,11 @@
+<mat-toolbar color="primary" class="toolbar">
+  <button mat-icon-button class="menu-button" (click)="menuToggle.emit()" aria-label="Menu">
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <span class="logo">Checkimo</span>
+  <span class="spacer"></span>
+
+  <button mat-button routerLink="/login" *ngIf="!isLoggedIn">Connexion</button>
+  <button mat-button (click)="logout()" *ngIf="isLoggedIn">Déconnexion</button>
+</mat-toolbar>
