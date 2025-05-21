@@ -3,7 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { CommonModule } from '@angular/common';  // <-- CommonModule
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatSidenav } from '@angular/material/sidenav';
+import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { ToolbarComponent } from './components/toolbar/toolbar.component';
 
 
@@ -12,7 +12,8 @@ import { ToolbarComponent } from './components/toolbar/toolbar.component';
   imports: [RouterOutlet,
     CommonModule,
     MatToolbarModule,
-    ToolbarComponent
+    ToolbarComponent,
+    MatSidenavModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
