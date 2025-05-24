@@ -1,0 +1,36 @@
+@import "variables";
+
+.app-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 2px solid $black;
+    overflow: scroll;
+
+    thead {
+        background-color: $black;
+        color: $white;
+        font-weight: 500;
+
+        td {
+            padding: 0.5rem;
+        }
+
+        td:not(:last-child) {
+            border-right: 2px solid $white;
+        }
+    }
+
+    tbody {
+        td {
+            padding: 0;
+            border: 2px solid $black;
+            position: relative;
+
+            * {
+                background-color: $white !important;
+                outline: none !important;
+                border: none !important;
+            }
+        }
+    }
+}

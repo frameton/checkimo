@@ -1,0 +1,16 @@
+@import "variables";
+
+.imo-alert {
+    position: fixed;
+    top: 50px;
+    right: 50px;
+    z-index: 5000;
+}
+
+.imo-alert--success {
+    background-color: $green4;
+}
+
+.imo-alert--error {
+    background-color: $red3;
+}

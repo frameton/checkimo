@@ -1,4 +1,14 @@
 /* You can add global styles to this file, and also import other style files */
+@import "../src/styles/_variables";
+@import "../src/styles/fonts.scss";
+@import "../src/styles/buttons.scss";
+@import "../src/styles/inputs.scss";
+@import "../src/styles/tables.scss";
+@import "../src/styles/scroll.scss";
+@import "../src/styles/selects.scss";
+@import "../src/styles/alerts.scss";
+@import "../src/styles/icons.scss";
+@import "../src/styles/autocomplete.scss";
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

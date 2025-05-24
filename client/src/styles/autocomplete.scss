@@ -1,0 +1,63 @@
+@import "variables";
+
+.imo-autocomplete {
+    border-bottom: 2px solid $black;
+    border-radius: 2px;
+    background-color: $gray4;
+    padding: 0.3rem 1rem 0.3rem 1.3rem;
+
+    input {
+        appearance: none;
+        border: none;
+        background-color: $gray4;
+        width: 100%;
+    }
+
+    feather-icon {
+        cursor: pointer;
+    }
+
+    .autocomplete-clear {
+        display: none;
+        width: 1.3em;
+        height: 1.3em;
+    }
+
+    .autocomplete-clear--show {
+        display: block;
+    }
+
+    input:focus {
+        outline: none;
+    }
+}
+
+.autocomplete-disabled {
+    cursor: not-allowed !important;
+}
+
+.imo-autocomplete-options {
+    width: 100%;
+    border: 1px solid $black;
+    max-height: 200px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background-color: $white;
+
+    div {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.2rem 1.3rem;
+        border-bottom: 1px solid $gray2;
+        cursor: pointer;
+
+        &:hover {
+            background-color: $gray4;
+        }
+    }
+
+    div:last-child {
+        border-bottom: none;
+    }
+}

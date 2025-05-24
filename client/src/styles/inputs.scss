@@ -1,0 +1,25 @@
+@import "variables";
+
+.app-input {
+    border: none;
+    border-bottom: 2px solid $black;
+    border-radius: 2px;
+    background-color: $gray4;
+    padding: 0.3rem 1.3rem;
+}
+
+.imo-invalid-input {
+    color: $red3 !important;
+
+    &::placeholder {
+        color: $red3 !important;
+    }
+
+    input::placeholder {
+        color: $red3 !important;
+    }
+
+    * {
+        color: $red3 !important;
+    }
+}

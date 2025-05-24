@@ -1,0 +1,55 @@
+.imo-select,
+.imo-select-level {
+    background: url("/assets/images/chevron.svg") no-repeat;
+    background-position: calc(100% - 0.75rem) center !important;
+    overflow: hidden;
+    padding: 0.3rem 2rem 0.3rem 1.3rem;
+}
+
+.imo-select {
+    appearance: none;
+    gap: 5px;
+    // min-width: 180px;
+    // max-width: 280px;
+    border: none;
+    border-bottom: 2px solid $black;
+    border-radius: 2px;
+    background-color: $gray4;
+    // text-align: center;
+}
+
+.imo-select[disabled] {
+    cursor: not-allowed;
+}
+
+.imo-select-level {
+    appearance: none;
+    min-width: 180px;
+    max-width: 280px;
+    gap: 5px;
+    border: none;
+    border-radius: 30px;
+    background-color: $white;
+    text-align: center;
+
+    & option {
+        background-color: $white;
+    }
+}
+.imo-select-level:has(option[value*="high" i]:checked) {
+    background-color: $green3;
+}
+
+.imo-select-level:has(option[value*="medium" i]:checked) {
+    background-color: $yellow1;
+}
+
+.imo-select-level:has(option[value*="low" i]:checked) {
+    background-color: $red1;
+}
+
+.imo-select-table {
+    width: 100%;
+    text-align: start;
+    padding-right: 2rem;
+}
