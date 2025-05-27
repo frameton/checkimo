@@ -1,6 +1,6 @@
-@import "variables";
+@use "variables";
 
 .icon-disabled {
     cursor: default;
-    color: $gray3;
+    color: variables.$gray3;
 }

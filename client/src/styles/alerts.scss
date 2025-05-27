@@ -1,4 +1,4 @@
-@import "variables";
+@use "variables";
 
 .imo-alert {
     position: fixed;
@@ -8,9 +8,9 @@
 }
 
 .imo-alert--success {
-    background-color: $green4;
+    background-color: variables.$green4;
 }
 
 .imo-alert--error {
-    background-color: $red3;
+    background-color: variables.$red3;
 }

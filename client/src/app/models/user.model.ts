@@ -84,4 +84,8 @@ export class User implements UserProps {
   get fullName(): string {
     return `${this.firstName} ${this.lastName}`.trim();
   }
+
+  get initiales(): string {
+    return `${this.firstName[0]}.${this.lastName[0]}`.trim();
+  }
 }

@@ -1,6 +1,6 @@
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, map, Observable, tap } from 'rxjs';
+import { BehaviorSubject, map, Observable, switchMap, tap } from 'rxjs';
 import { TokenStorageService } from './token-storage.service';
 import { environment } from '@/environments/environments';
 import { ApiResponse } from '../models/api.model';
@@ -37,6 +37,19 @@ export class AuthService {
   }
 
 
+  getMe(): Observable<User> {
+  return this.http
+    .get<ApiResponse<User>>(
+      `${environment.apiBaseUrl}${environment.apiVersion}/users/me`,
+      { withCredentials: true }
+    )
+    .pipe(
+      map(res => this.unwrap(res)),          // extrait res.data ou lève une erreur
+      tap(user => this.meSubject.next(user)) // met à jour votre me$
+    );
+}
+
+
   public isLoggedIn(): boolean {
     if (!isPlatformBrowser(this.platformId)) {
       return false;
@@ -69,7 +82,8 @@ export class AuthService {
   toJSON: function (): UserProps {
     throw new Error('Function not implemented.');
   },
-  fullName: ''
+  fullName: '',
+  initiales: ''
 };
   }
 
@@ -85,20 +99,36 @@ export class AuthService {
 
   /** Appel à POST /auth/login */
   login(dto: LoginDto): Observable<void> {
-    return this.http
-      .post<ApiResponse<AuthPayload>>(
-        `${this.endpoint}/login`,
-        dto,
-        { withCredentials: true },
-      )
-      .pipe(
-        map(res => this.unwrap(res)),
-        tap(({ accessToken }) => {
-          this.tokenStorage.token = accessToken;
-          this.meSubject.next(this.tokenStorage.decoded);
-        }),
-        map(() => void 0),
-      );
+  return this.http.post<ApiResponse<AuthPayload>>(
+      `${this.endpoint}/login`,
+      dto,
+      { withCredentials: true }
+    ).pipe(
+      map(res => this.unwrap(res)),
+      tap(({ accessToken }) => this.tokenStorage.token = accessToken),
+      // d’abord émettre le mini-user pour les cas où on a besoin d’un user non-null
+      tap(() => this.meSubject.next(this.tokenStorage.decoded)),
+      // puis récupérer l’objet User complet
+      switchMap(() => this.getMe()),
+      map(() => void 0),
+    );
+}
+
+/** Appel à POST /auth/refresh */
+  refresh(): Observable<void> {
+    return this.http.post<ApiResponse<AuthPayload>>(
+      `${this.endpoint}/login`,
+      dto,
+      { withCredentials: true }
+    ).pipe(
+      map(res => this.unwrap(res)),
+      tap(({ accessToken }) => this.tokenStorage.token = accessToken),
+      // d’abord émettre le mini-user pour les cas où on a besoin d’un user non-null
+      tap(() => this.meSubject.next(this.tokenStorage.decoded)),
+      // puis récupérer l’objet User complet
+      switchMap(() => this.getMe()),
+      map(() => void 0),
+    );
   }
 
   /** Appel à POST /auth/logout */
@@ -113,24 +143,6 @@ export class AuthService {
         tap(() => {
           this.tokenStorage.clear();
           this.meSubject.next(null);
-        }),
-        map(() => void 0),
-      );
-  }
-
-  /** Appel à POST /auth/refresh */
-  refresh(): Observable<void> {
-    return this.http
-      .post<ApiResponse<AuthPayload>>(
-        `${this.endpoint}/refresh`,
-        {},
-        { withCredentials: true },
-      )
-      .pipe(
-        map(res => this.unwrap(res)),
-        tap(({ accessToken }) => {
-          this.tokenStorage.token = accessToken;
-          this.meSubject.next(this.tokenStorage.decoded);
         }),
         map(() => void 0),
       );

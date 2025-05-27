@@ -1,32 +1,91 @@
-@import "variables"; // Importer les variables SCSS
+@use "variables"; // Importer les variables SCSS
 
 .toolbar {
   display: flex;
   align-items: center;
-  justify-content: start;
-  background-color: $black;
-}
-
-.menu-button {
-  display: none;
+  padding: 0 1rem;
+  background-color: variables.$black;
 }
 
 .logo {
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: variables.$blue3;
+  user-select: none;
+  cursor: pointer;
+  text-decoration: none !important;
+  transition: 0.2s;
+
+  &:hover {
+    letter-spacing: 1px;
+    color: variables.$blue4;
+  }
+}
+
+.separator {
+  display: flex;
+  width: 0px;
+  height: 50%;
+  border: solid 1.5px variables.$gray3;
+}
+
+.links {
+  display: flex;
+  gap: 1rem;
+  margin-left: 2rem;
+
+  a {
+    color: variables.$gray3;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: 0.2s;
+
+    &:hover {
+      color: variables.$blue4;
+      font-weight: bold;
+      text-decoration: underline;
+      font-size: 1.1rem;
+    }
+  }
+
+  a.active {
+    color: variables.$blue4;
+    font-weight: bold;
+    text-decoration: underline;
+    font-size: 1.1rem;
+  }
+  
 }
 
 .spacer {
   flex: 1 1 auto;
 }
 
-// Responsive adjustments pour mobile
-@media (max-width: 600px) {
-  .menu-button {
-    display: inline-flex;
-  }
+.avatar-button {
+  padding: 0;
+  min-width: 0;
+}
 
+/* Cercle bleu avec initiales blanches */
+.user-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #1976d2;  /* couleur primaire Material Blue */
+  color: #fff;
+  font-weight: 500;
+  font-size: 0.875rem;        /* légèrement plus petit que le texte normal */
+}
+
+@media (max-width: 600px) {
+  .links {
+    display: none;
+  }
   .logo {
-    font-size: 1.25rem;
+    margin-right: auto;
+    font-size: 1rem;
   }
 }

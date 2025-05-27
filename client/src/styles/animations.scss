@@ -304,25 +304,25 @@
 
 @keyframes gradient2 {
     0% {
-        background-color: $green3;
+        background-color: variables.$green3;
     }
     50% {
-        background-color: $green4;
+        background-color: variables.$green4;
     }
     100% {
-        background-color: $green3;
+        background-color: variables.$green3;
     }
 }
 
 @keyframes gradient3 {
     0% {
-        background-color: $blue2;
+        background-color: variables.$blue2;
     }
     50% {
-        background-color: $blue3;
+        background-color: variables.$blue3;
     }
     100% {
-        background-color: $blue2;
+        background-color: variables.$blue2;
     }
 }
 
@@ -607,11 +607,11 @@
 
 .blackLoader {
     .inner.one {
-        border-bottom: 3px solid $black !important;
+        border-bottom: 3px solid variables.$black !important;
     }
 
     .inner.three {
-        border-top: 3px solid $black !important;
+        border-top: 3px solid variables.$black !important;
     }
 }
 
@@ -659,21 +659,21 @@
         left: 0%;
         top: 0%;
         animation: rotate-one 1s linear infinite;
-        border-bottom: 3px solid $white;
+        border-bottom: 3px solid variables.$white;
     }
 
     .inner.two {
         right: 0%;
         top: 0%;
         animation: rotate-two 1s linear infinite;
-        border-right: 3px solid $blue3;
+        border-right: 3px solid variables.$blue3;
     }
 
     .inner.three {
         right: 0%;
         bottom: 0%;
         animation: rotate-three 1s linear infinite;
-        border-top: 3px solid $white;
+        border-top: 3px solid variables.$white;
     }
 }
 /* ################################################# */

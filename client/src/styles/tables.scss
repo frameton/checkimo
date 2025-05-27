@@ -1,14 +1,14 @@
-@import "variables";
+@use "variables";
 
 .app-table {
     width: 100%;
     border-collapse: collapse;
-    border: 2px solid $black;
+    border: 2px solid variables.$black;
     overflow: scroll;
 
     thead {
-        background-color: $black;
-        color: $white;
+        background-color: variables.$black;
+        color: variables.$white;
         font-weight: 500;
 
         td {
@@ -16,18 +16,18 @@
         }
 
         td:not(:last-child) {
-            border-right: 2px solid $white;
+            border-right: 2px solid variables.$white;
         }
     }
 
     tbody {
         td {
             padding: 0;
-            border: 2px solid $black;
+            border: 2px solid variables.$black;
             position: relative;
 
             * {
-                background-color: $white !important;
+                background-color: variables.$white !important;
                 outline: none !important;
                 border: none !important;
             }

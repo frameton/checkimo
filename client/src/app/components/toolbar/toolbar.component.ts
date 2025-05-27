@@ -1,19 +1,25 @@
-import { AuthService } from '@/app/services/auth.service';
-import { CommonModule } from '@angular/common';
 import { Component, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule, Router } from '@angular/router';
+import { BreakpointObserver, Breakpoints, LayoutModule } from '@angular/cdk/layout';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { Router, RouterOutlet } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatMenuModule } from '@angular/material/menu';
+import { User } from '@/app/models/user.model';
+import { AuthService } from '@/app/services/auth.service';
 
 @Component({
   selector: 'app-toolbar',
+  standalone: true,
   imports: [
-    RouterOutlet,
     CommonModule,
+    RouterModule,
+    LayoutModule,
     MatToolbarModule,
     MatIconModule,
+    MatButtonModule,
+    MatMenuModule,
   ],
   templateUrl: './toolbar.component.html',
   styleUrls: ['./toolbar.component.scss'],
@@ -21,18 +27,39 @@ import { Router, RouterOutlet } from '@angular/router';
 export class ToolbarComponent {
   @Output() menuToggle = new EventEmitter<void>();
 
-  constructor(
-    private auth: AuthService,
-    private router: Router,
-  ) {}
+  isMobile = false;
+  isLoggedIn = false; // à remplacer par votre service d'auth
+  user: User | null = null; // à remplacer par votre service d'utilisateur
 
-  get isLoggedIn(): boolean {
-    return this.auth.isLoggedIn();
+  constructor(
+    private router: Router,
+    private breakpoint: BreakpointObserver,
+    private authService: AuthService
+  ) {
+    this.breakpoint.observe([Breakpoints.Handset]).subscribe(b => {
+      this.isMobile = b.matches;
+    });
+
+    this.authService.isLoggedIn$().subscribe(log => {
+      this.isLoggedIn = log;
+    });
+
+    this.authService.me$.subscribe(u => {
+      this.user = u;
+      console.log('Utilisateur connecté :', this.user);
+      
+    });
   }
 
-  logout(): void {
-    this.auth.logout().subscribe(() => {
-      this.router.navigate(['/login']);
-    });
+  onLogin() {
+    // implémenter la logique de connexion
+    this.isLoggedIn = true;
+    this.router.navigate(['/login']);
+  }
+
+  onLogout() {
+    // implémenter la logique de déconnexion
+    this.isLoggedIn = false;
+    this.router.navigate(['/']);
   }
 }

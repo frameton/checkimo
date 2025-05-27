@@ -1,11 +1,48 @@
 <mat-toolbar color="primary" class="toolbar">
-  <button mat-icon-button class="menu-button" (click)="menuToggle.emit()" aria-label="Menu">
-    <mat-icon>menu</mat-icon>
-  </button>
+  <!-- Logo à gauche -->
+  <a mat-button class="logo" routerLink="/" routerLinkActive="active">CheckImmo</a>
+  <div class="separator"></div>
 
-  <span class="logo">Checkimo</span>
+  <!-- Liens desktop -->
+  <nav class="links" *ngIf="!isMobile">
+    <a mat-button routerLink="/exemple1" routerLinkActive="active">Exemple 1</a>
+    <a mat-button routerLink="/exemple2" routerLinkActive="active">Exemple 2</a>
+    <a mat-button routerLink="/exemple3" routerLinkActive="active">Exemple 3</a>
+  </nav>
+
   <span class="spacer"></span>
 
-  <button mat-button routerLink="/login" *ngIf="!isLoggedIn">Connexion</button>
-  <button mat-button (click)="logout()" *ngIf="isLoggedIn">Déconnexion</button>
+  <!-- Icône user si non connecté -->
+  <button
+    mat-icon-button
+    *ngIf="!isMobile && !isLoggedIn"
+    (click)="onLogin()"
+    aria-label="Se connecter"
+  >
+    <mat-icon>account_circle</mat-icon>
+  </button>
+
+  <!-- Avatar initials si connecté -->
+  <button
+    mat-button
+    *ngIf="!isMobile && isLoggedIn"
+    class="avatar-button"
+    (click)="onLogout()"
+    aria-label="Se déconnecter"
+  >
+    <span class="user-avatar">{{ user?.firstName ?? "none" }}</span>
+  </button>
+
+  <!-- Menu mobile inchangé (si besoin, on peut faire de même à l'intérieur du mat-menu) -->
+  <button mat-icon-button *ngIf="isMobile" [matMenuTriggerFor]="mobileMenu">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <mat-menu #mobileMenu="matMenu">
+    <button mat-menu-item routerLink="/exemple1">Exemple 1</button>
+    <button mat-menu-item routerLink="/exemple2">Exemple 2</button>
+    <button mat-menu-item routerLink="/exemple3">Exemple 3</button>
+    <button mat-menu-item (click)="isLoggedIn ? onLogout() : onLogin()">
+      {{ isLoggedIn ? 'Déconnexion' : 'Connexion' }}
+    </button>
+  </mat-menu>
 </mat-toolbar>

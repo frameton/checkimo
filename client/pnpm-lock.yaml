@@ -50,6 +50,9 @@ importers:
       rxjs:
         specifier: ~7.8.0
         version: 7.8.2
+      sass-migrator:
+        specifier: ^2.3.2
+        version: 2.3.2
       tslib:
         specifier: ^2.3.0
         version: 2.8.1
@@ -3657,6 +3660,11 @@ packages:
         optional: true
       webpack:
         optional: true
+
+  sass-migrator@2.3.2:
+    resolution: {integrity: sha512-BhaDZWmMxxvBUTDERh9RGtxPwC/rxwJ8wNqz9xJ+RigCn2Op+xiSiOPbblhjzXR+TtyZT689wHjCpjtBiEnbEw==}
+    engines: {node: '>=10.12.0'}
+    hasBin: true
 
   sass@1.85.0:
     resolution: {integrity: sha512-3ToiC1xZ1Y8aU7+CkgCI/tqyuPXEmYGJXO7H4uqp0xkLXUqp88rQQ4j1HmP37xSJLbCJPaIiv+cT1y+grssrww==}
@@ -8127,6 +8135,8 @@ snapshots:
     optionalDependencies:
       sass: 1.85.0
       webpack: 5.98.0(esbuild@0.25.4)
+
+  sass-migrator@2.3.2: {}
 
   sass@1.85.0:
     dependencies:

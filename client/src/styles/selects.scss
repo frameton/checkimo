@@ -1,3 +1,5 @@
+@use "variables";
+
 .imo-select,
 .imo-select-level {
     background: url("/assets/images/chevron.svg") no-repeat;
@@ -12,9 +14,9 @@
     // min-width: 180px;
     // max-width: 280px;
     border: none;
-    border-bottom: 2px solid $black;
+    border-bottom: 2px solid variables.$black;
     border-radius: 2px;
-    background-color: $gray4;
+    background-color: variables.$gray4;
     // text-align: center;
 }
 
@@ -29,23 +31,23 @@
     gap: 5px;
     border: none;
     border-radius: 30px;
-    background-color: $white;
+    background-color: variables.$white;
     text-align: center;
 
     & option {
-        background-color: $white;
+        background-color: variables.$white;
     }
 }
 .imo-select-level:has(option[value*="high" i]:checked) {
-    background-color: $green3;
+    background-color: variables.$green3;
 }
 
 .imo-select-level:has(option[value*="medium" i]:checked) {
-    background-color: $yellow1;
+    background-color: variables.$yellow1;
 }
 
 .imo-select-level:has(option[value*="low" i]:checked) {
-    background-color: $red1;
+    background-color: variables.$red1;
 }
 
 .imo-select-table {

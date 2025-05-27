@@ -1,13 +1,15 @@
 // Primary button section
+@use "variables"; // Importer les variables SCSS
+
 .app-btn {
     text-decoration: none;
     font-weight: 600;
     padding: 0.3rem 1.3rem;
     border-radius: 5px;
     font-size: smaller;
-    border: 2px solid $black;
-    background-color: $black;
-    color: $white;
+    border: 2px solid variables.$black;
+    background-color: variables.$black;
+    color: variables.$white;
     text-align: center;
 
     & > img {
@@ -25,13 +27,13 @@
 }
 
 .app-btn:hover {
-    background-color: $gray2;
-    border-color: $gray2;
+    background-color: variables.$gray2;
+    border-color: variables.$gray2;
 }
 
 .app-btn:active {
-    background-color: $black;
-    border-color: $black;
+    background-color: variables.$black;
+    border-color: variables.$black;
 }
 
 .app-btn:disabled {
@@ -41,38 +43,38 @@
 // Border button section
 .app-btn-border {
     background-color: transparent;
-    color: $black;
+    color: variables.$black;
 }
 
 .app-btn-border:hover {
     text-decoration: underline;
     background-color: transparent;
-    color: $black;
-    border-color: $black;
+    color: variables.$black;
+    border-color: variables.$black;
 }
 
 .app-btn-border:active {
     background-color: transparent;
-    color: $gray2;
-    border-color: $gray2;
+    color: variables.$gray2;
+    border-color: variables.$gray2;
 }
 
 // Ghost button section
 .app-btn-ghost {
     border: none;
     background-color: transparent;
-    color: $black;
+    color: variables.$black;
 }
 
 .app-btn-ghost:hover {
     text-decoration: underline;
     background-color: transparent;
-    color: $black;
+    color: variables.$black;
 }
 
 .app-btn-ghost:active {
     background-color: transparent;
-    color: $gray2;
+    color: variables.$gray2;
 }
 
 // Border button section
@@ -83,8 +85,8 @@
     border-radius: 5px;
     font-size: smaller;
     background: none;
-    border: 2px solid $black;
-    color: $black;
+    border: 2px solid variables.$black;
+    color: variables.$black;
     text-align: center;
     transition: 0.2s;
 
@@ -95,13 +97,13 @@
 }
 
 .app-btn-fullborder:hover {
-    background-color: $gray1;
-    border-color: $gray1;
-    color: $white;
+    background-color: variables.$gray1;
+    border-color: variables.$gray1;
+    color: variables.$white;
 }
 
 .app-btn-fullborder:active {
-    background-color: $gray1;
-    border-color: $gray1;
-    color: $white;
+    background-color: variables.$gray1;
+    border-color: variables.$gray1;
+    color: variables.$white;
 }
