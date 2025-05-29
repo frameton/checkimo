@@ -23,7 +23,17 @@ export class UsersService {
   }
 
   findOne(id: string) {
-    return this.prisma.user.findUnique({ where: { id } });
+    return this.prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        // Ajoute ici d'autres champs publics
+      },
+    });
   }
 
   /* UPDATE ----------------------------------------------------- */

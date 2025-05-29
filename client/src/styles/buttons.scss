@@ -7,9 +7,6 @@
     padding: 0.3rem 1.3rem;
     border-radius: 5px;
     font-size: smaller;
-    border: 2px solid variables.$black;
-    background-color: variables.$black;
-    color: variables.$white;
     text-align: center;
 
     & > img {
@@ -26,9 +23,21 @@
     }
 }
 
+.black-btn {
+    background-color: variables.$black;
+    color: variables.$white;
+    border: 1px solid variables.$black;
+}
+
+.blue-btn {
+    background-color: variables.$blue3;
+    color: variables.$black;
+    border: 1px solid variables.$blue3;
+}
+
 .app-btn:hover {
-    background-color: variables.$gray2;
-    border-color: variables.$gray2;
+    cursor: pointer;
+    opacity: 0.8;
 }
 
 .app-btn:active {

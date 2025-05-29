@@ -23,3 +23,11 @@
     padding: 16px;
   }
 }
+
+.dov {
+  display: flex;
+  height: 300px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px; // espace entre le logo et le formulaire
+}

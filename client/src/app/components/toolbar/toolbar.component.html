@@ -1,48 +1,77 @@
-<mat-toolbar color="primary" class="toolbar">
-  <!-- Logo à gauche -->
-  <a mat-button class="logo" routerLink="/" routerLinkActive="active">CheckImmo</a>
-  <div class="separator"></div>
+<mat-toolbar color="primary" class="toolbar" #toolbar>
+  <!-- Burger mobile -->
+  <button *ngIf="(isLoggedIn$ | async) && isMobile" mat-icon-button (click)="menuToggle.emit()">
+    <mat-icon>menu</mat-icon>
+  </button>
 
-  <!-- Liens desktop -->
-  <nav class="links" *ngIf="!isMobile">
-    <a mat-button routerLink="/exemple1" routerLinkActive="active">Exemple 1</a>
-    <a mat-button routerLink="/exemple2" routerLinkActive="active">Exemple 2</a>
-    <a mat-button routerLink="/exemple3" routerLinkActive="active">Exemple 3</a>
+  <!-- Logo -->
+  <a mat-button class="logo" routerLink="/landing">Omelia</a>
+  <div class="separator" *ngIf="isLoggedIn$ | async"></div>
+
+  <!-- Liens principaux (desktop) -->
+  <nav *ngIf="(isLoggedIn$ | async) && !isMobile" class="links">
+    <a mat-button routerLink="/exemple1" routerLinkActive="active">Exemple&nbsp;1</a>
+    <a mat-button routerLink="/exemple2" routerLinkActive="active">Exemple&nbsp;2</a>
+    <a mat-button routerLink="/exemple3" routerLinkActive="active">Exemple&nbsp;3</a>
   </nav>
 
   <span class="spacer"></span>
 
-  <!-- Icône user si non connecté -->
-  <button
-    mat-icon-button
-    *ngIf="!isMobile && !isLoggedIn"
-    (click)="onLogin()"
-    aria-label="Se connecter"
-  >
-    <mat-icon>account_circle</mat-icon>
-  </button>
+  <!-- Actions utilisateur -->
+  <ng-container *ngIf="isLoggedIn$ | async; else guest">
+    <button mat-button class="userMenu" [matMenuTriggerFor]="userMenu">
+      <div class="accountCircle">
+          <span class="username" *ngIf="user$ | async as u">{{ initials }}</span>
+      </div>
+    </button>
+    <mat-menu #userMenu="matMenu" class="toolbar-mat-menu">
+      <button mat-menu-item routerLink="/profile">
+        <mat-icon>person</mat-icon>
+        <span>Mon profil</span>
+      </button>
+      <button mat-menu-item (click)="redirectLogout()">
+        <mat-icon>logout</mat-icon>
+        <span>Déconnexion</span>
+      </button>
+    </mat-menu>
+  </ng-container>
 
-  <!-- Avatar initials si connecté -->
-  <button
-    mat-button
-    *ngIf="!isMobile && isLoggedIn"
-    class="avatar-button"
-    (click)="onLogout()"
-    aria-label="Se déconnecter"
-  >
-    <span class="user-avatar">{{ user?.firstName ?? "none" }}</span>
-  </button>
+  <!-- Visiteur -->
+  <ng-template #guest>
+    <button mat-button class="visitorMenu" [matMenuTriggerFor]="visitorMenu">
+      <mat-icon>account_circle</mat-icon>
+    </button>
 
-  <!-- Menu mobile inchangé (si besoin, on peut faire de même à l'intérieur du mat-menu) -->
+    <mat-menu #visitorMenu="matMenu" class="toolbar-mat-menu">
+      <button mat-menu-item routerLink="/login">
+        <mat-icon>person</mat-icon>
+        <span>Se connecter / s'inscrire</span>
+      </button>
+      <!-- <button mat-menu-item (click)="redirectLogout()">
+        <mat-icon>logout</mat-icon>
+        <span>Déconnexion</span>
+      </button> -->
+    </mat-menu>
+  </ng-template>
+
+  <!-- Menu mobile complémentaire -->
   <button mat-icon-button *ngIf="isMobile" [matMenuTriggerFor]="mobileMenu">
-    <mat-icon>menu</mat-icon>
+    <mat-icon>more_vert</mat-icon>
   </button>
   <mat-menu #mobileMenu="matMenu">
-    <button mat-menu-item routerLink="/exemple1">Exemple 1</button>
-    <button mat-menu-item routerLink="/exemple2">Exemple 2</button>
-    <button mat-menu-item routerLink="/exemple3">Exemple 3</button>
-    <button mat-menu-item (click)="isLoggedIn ? onLogout() : onLogin()">
-      {{ isLoggedIn ? 'Déconnexion' : 'Connexion' }}
+    <button mat-menu-item routerLink="/exemple1">Exemple&nbsp;1</button>
+    <button mat-menu-item routerLink="/exemple2">Exemple&nbsp;2</button>
+    <button mat-menu-item routerLink="/exemple3">Exemple&nbsp;3</button>
+
+    <button mat-menu-item *ngIf="isLoggedIn$ | async; else mobileGuest" (click)="redirectLogout()">
+      <mat-icon>logout</mat-icon>
+      <span>Déconnexion</span>
     </button>
+    <ng-template #mobileGuest>
+      <button mat-menu-item (click)="redirectLogin()">
+        <mat-icon>login</mat-icon>
+        <span>Connexion</span>
+      </button>
+    </ng-template>
   </mat-menu>
 </mat-toolbar>

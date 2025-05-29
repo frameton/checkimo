@@ -2,54 +2,42 @@ import { Injectable } from '@angular/core';
 import {
   CanActivate,
   CanLoad,
-  Route,
-  UrlSegment,
   ActivatedRouteSnapshot,
   RouterStateSnapshot,
+  Route,
+  UrlSegment,
   UrlTree,
-  Router
+  Router,
 } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { AuthService } from '../services/auth.service';
-import { TokenStorageService } from '../services/token-storage.service';
+
+import { AuthService } from '@/app/services/auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate, CanLoad {
   constructor(
-    private authService: AuthService,
-    private tokenStorage: TokenStorageService,
-    private router: Router
+    private readonly auth: AuthService,
+    private readonly router: Router,
   ) {}
 
-  private handleAuth(stateUrl?: string): Observable<boolean | UrlTree> {
-    const token = this.authService.token;
-    if (!token) {
-      // Pas de token, redirige vers login
-      return of(
-        this.router.createUrlTree(['/login'], {
-          queryParams: { returnUrl: stateUrl }
-        })
-      );
-    }
+  /** Génère l’UrlTree de redirection vers /login. */
+  private redirectToLogin(returnUrl?: string): UrlTree {
+    return this.router.createUrlTree(
+      ['/login'],
+      { queryParams: { returnUrl } },
+    );
+  }
 
-    // Token présent mais peut être expiré
-    if (!this.tokenStorage.isExpired(token)) {
-      // Token valide
-      return of(true);
-    }
+  /** Logique commune à canActivate / canLoad. */
+  private ensureAuthenticated(stateUrl?: string): Observable<boolean | UrlTree> {
+    // 1) Token présent ET non expiré → accès immédiat
+    if (this.auth.isLoggedInSync()) return of(true);
 
-    // Token expiré : tenter un refresh
-    return this.authService.refresh().pipe(
-      map(() => true),
-      catchError(() =>
-        // Échec du refresh => redirection login
-        of(
-          this.router.createUrlTree(['/login'], {
-            queryParams: { returnUrl: stateUrl }
-          })
-        )
-      )
+    // 2) Sinon, on tente un refresh silencieux
+    return this.auth.refresh().pipe(
+      map(() => true),                                   // refresh OK → accès
+      catchError(() => of(this.redirectToLogin(stateUrl))) // refresh KO → login
     );
   }
 
@@ -57,7 +45,7 @@ export class AuthGuard implements CanActivate, CanLoad {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): Observable<boolean | UrlTree> {
-    return this.handleAuth(state.url);
+    return this.ensureAuthenticated(state.url);
   }
 
   canLoad(
@@ -65,6 +53,6 @@ export class AuthGuard implements CanActivate, CanLoad {
     segments: UrlSegment[]
   ): Observable<boolean | UrlTree> {
     const url = '/' + segments.map(s => s.path).join('/');
-    return this.handleAuth(url);
+      return this.ensureAuthenticated(url);
+    }
   }
-}

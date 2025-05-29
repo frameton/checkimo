@@ -5,12 +5,23 @@ import { RoleGuard } from './guards/role.guard';
 import { LoginComponent } from './views/login/login.component';
 import { AdminComponent } from './views/admin/admin.component';
 import { DashboardComponent } from './views/dashboard/dashboard.component';
+import { NotFoundComponent } from './views/not-found/not-found.component';
+import { LandingComponent } from './views/landing/landing.component';
 
 export const routes: Routes = [
 //   { path: '', component: HomeComponent },
 
-  // page de connexion (publique)
-  { path: 'login', component: LoginComponent },
+  //(publique)
+  {
+    path: 'login',
+    component: LoginComponent
+  },
+
+  {
+    path: 'landing',
+    component: LandingComponent
+  },
+
 
   // section utilisateurs protégée
   {
@@ -26,6 +37,12 @@ export const routes: Routes = [
     data: { roles: [Role.ADMIN] },
   },
 
+  {
+    path: 'not-found',
+    component: NotFoundComponent,
+    canActivate: [AuthGuard]
+  },
+
   // autres modules (ex. devices, projects)…
 //   {
 //     path: 'devices',
@@ -34,5 +51,8 @@ export const routes: Routes = [
 //   },
 
   // fallback
-  { path: '**', redirectTo: '' },
+  {
+    path: '**',
+    redirectTo: 'not-found'
+  },
 ];

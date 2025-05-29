@@ -5,6 +5,8 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ApiSuccessInterceptor } from './interceptors/api-success.interceptor';
 import { ApiExceptionFilter } from './interceptors/api-exception.filter';
+import { NotFoundExceptionFilter } from './common/filters/not-found-exception.filter';
+
 
 
 async function bootstrap() {
@@ -41,6 +43,8 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
+
+  app.useGlobalFilters(new NotFoundExceptionFilter());
 
   await app.listen(process.env.PORT || 3000);
 }

@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  NotFoundException,
   Post,
   Req,
   Res,
@@ -14,10 +15,14 @@ import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RefreshGuard } from './guards/refresh.guard';
 import { AuthPayloadDto } from './dto/auth-payload.dto';
+import { UsersService } from '../users/users.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly auth: AuthService) {}
+  constructor(
+    private readonly auth: AuthService,
+    private readonly userService: UsersService
+  ) {}
 
   /**
    * POST /auth/login
@@ -98,8 +103,11 @@ export class AuthController {
   @Get('me')
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
-  me(@Req() req: Request): { userId: string; role: string } {
-    const user = req.user as { userId: string; role: string };
-    return { userId: user.userId, role: user.role };
+  async me(@Req() req: Request) {
+
+    if (!req.user) throw new NotFoundException('User not found');
+    const user = await this.userService.findOne(req.user['userId']);
+    if (!user) throw new NotFoundException('User not found');
+    return user;
   }
 }

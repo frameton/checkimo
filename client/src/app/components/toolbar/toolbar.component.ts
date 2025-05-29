@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter, HostListener, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { BreakpointObserver, Breakpoints, LayoutModule } from '@angular/cdk/layout';
@@ -6,6 +6,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
+import { BehaviorSubject, Observable, take } from 'rxjs';
+
 import { User } from '@/app/models/user.model';
 import { AuthService } from '@/app/services/auth.service';
 
@@ -23,43 +25,83 @@ import { AuthService } from '@/app/services/auth.service';
   ],
   templateUrl: './toolbar.component.html',
   styleUrls: ['./toolbar.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ToolbarComponent {
-  @Output() menuToggle = new EventEmitter<void>();
+  @Output() readonly menuToggle = new EventEmitter<void>();
 
   isMobile = false;
-  isLoggedIn = false; // à remplacer par votre service d'auth
-  user: User | null = null; // à remplacer par votre service d'utilisateur
+
+  isLoggedIn$!: Observable<boolean>;
+  user$!: Observable<User | null>;
+
+  private readonly userSubject = new BehaviorSubject<User | null>(null);
 
   constructor(
-    private router: Router,
-    private breakpoint: BreakpointObserver,
-    private authService: AuthService
+    private readonly router: Router,
+    private readonly breakpoint: BreakpointObserver,
+    private readonly auth: AuthService
   ) {
-    this.breakpoint.observe([Breakpoints.Handset]).subscribe(b => {
-      this.isMobile = b.matches;
-    });
+    // Détecte le passage en mode handset / desktop
+    this.isLoggedIn$ = this.auth.isLoggedIn$;
+    this.user$       = this.auth.me$;
+    this.user$.subscribe(user => this.userSubject.next(user));
 
-    this.authService.isLoggedIn$().subscribe(log => {
-      this.isLoggedIn = log;
-    });
-
-    this.authService.me$.subscribe(u => {
-      this.user = u;
-      console.log('Utilisateur connecté :', this.user);
-      
-    });
+    this.breakpoint
+      .observe([Breakpoints.Handset])
+      .subscribe(b => (this.isMobile = b.matches));
   }
 
-  onLogin() {
-    // implémenter la logique de connexion
-    this.isLoggedIn = true;
+  /* ----------------------------------------------------------- */
+  /* UX : barre inverse lors du scroll                           */
+  /* ----------------------------------------------------------- */
+  @HostListener('window:scroll', [])
+  onWindowScroll(): void {
+    const element = document.querySelector('.toolbar') as HTMLElement;
+    if (!element) return;
+    if (window.scrollY > element.clientHeight) {
+      element.classList.add('toolbar-inverse');
+    } else {
+      element.classList.remove('toolbar-inverse');
+    }
+  }
+
+  ngAfterViewInit(): void {
+    // console.log(this.isLoggedIn$.source?.source);
+    this.user$.subscribe(u => console.log('me$', u));
+
+    this.isLoggedIn$.subscribe(u => console.log('log$', u));
+    
+    
+  }
+
+  get initials(): string {
+    const user = this.userSubject.getValue();
+    
+    if (!user) return '';
+    const first = user.firstName?.charAt(0) || '';
+    const last = user.lastName?.charAt(0) || '';
+
+    return (first + "." + last).toUpperCase();
+  }
+
+  /* ----------------------------------------------------------- */
+  /* Navigation actions                                          */
+  /* ----------------------------------------------------------- */
+  redirectLogin(): void {
     this.router.navigate(['/login']);
   }
 
-  onLogout() {
-    // implémenter la logique de déconnexion
-    this.isLoggedIn = false;
-    this.router.navigate(['/']);
+  redirectLogout(): void {
+  this.auth.logout()
+    .pipe(take(1)) // <-- pour éviter des subscriptions infinies
+    .subscribe({
+      next: () => this.router.navigate(['/landing']),
+      error: (err) => {
+        // Optionnel : afficher une notification ou log l’erreur
+        console.error('Erreur lors de la déconnexion', err);
+        this.router.navigate(['/landing']); // quand même
+      }
+    });
   }
 }

@@ -1,155 +1,200 @@
-import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, map, Observable, switchMap, tap } from 'rxjs';
-import { TokenStorageService } from './token-storage.service';
-import { environment } from '@/environments/environments';
-import { ApiResponse } from '../models/api.model';
+import {
+  BehaviorSubject,
+  catchError,
+  defer,
+  finalize,
+  map,
+  Observable,
+  of,
+  shareReplay,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
-import { User, UserProps } from '../models/user.model';
 
-/** Données renvoyées par /auth/login et /auth/refresh */
+import { environment } from '@/environments/environments';
+import { ApiResponse } from '@/app/models/api.model';
+import { TokenStorageService } from '@/app/services/token-storage.service';
+import { User } from '@/app/models/user.model';
+
+/**
+ * Payload renvoyé par les endpoints /auth/login et /auth/refresh.
+ */
 export interface AuthPayload {
   accessToken: string;
 }
 
-/** DTO pour le login */
+/**
+ * DTO utilisé lors de la soumission du formulaire de connexion.
+ */
 export interface LoginDto {
   email: string;
   password: string;
 }
 
+/**
+ * Service d’authentification complet :
+ *   • Stocke et expose l’utilisateur courant (me$)
+ *   • Fournit les appels login / refresh / logout
+ *   • Gère le refresh concurrent via un mutex (shareReplay)
+ *   • Expose un flux booléen isLoggedIn$ et une variante synchrone isLoggedInSync()
+ */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private meSubject = new BehaviorSubject<any | null>(null);
+  /** Store interne typé. NE PAS exposer directement. */
+  private readonly meSubject = new BehaviorSubject<User | null>(null);
+
+  /** Flux public (read‑only) de l’utilisateur courant. */
   readonly me$ = this.meSubject.asObservable();
+
+  /** Flux booléen dérivé de me$ indiquant l’état de connexion. */
+  readonly isLoggedIn$ = this.me$.pipe(map(Boolean));
 
   private readonly endpoint = `${environment.apiBaseUrl}${environment.apiVersion}/auth`;
 
+  /** Observable singleton servant de mutex lors d’un refresh pour éviter les collisions. */
+  private refreshing$?: Observable<void>;
+
   constructor(
-    private http: HttpClient,
-    private tokenStorage: TokenStorageService,
-    @Inject(PLATFORM_ID) private platformId: Object,
+    private readonly http: HttpClient,
+    private readonly tokenStorage: TokenStorageService,
+    @Inject(PLATFORM_ID) private readonly platformId: Object,
   ) {
-    const decoded = this.tokenStorage.decoded;
-    if (decoded && this.tokenStorage.token && !this.tokenStorage.isExpired(this.tokenStorage.token)) {
-      this.meSubject.next(decoded);
+    // Lors du bootstrap, on hydrate meSubject si un token valide est déjà présent.
+    const cached = this.tokenStorage.decoded;
+    if (cached && !this.tokenStorage.isExpired(this.tokenStorage.token!)) {
+      // 1. Émet l’utilisateur « light » immédiatement pour ne pas bloquer l’UI
+      this.meSubject.next(cached);
+      // 2. Puis remplace‑le par le profil complet dès que disponible
+      this.loadMe$.subscribe();
     }
   }
 
-
-  getMe(): Observable<User> {
-  return this.http
-    .get<ApiResponse<User>>(
-      `${environment.apiBaseUrl}${environment.apiVersion}/users/me`,
-      { withCredentials: true }
-    )
-    .pipe(
-      map(res => this.unwrap(res)),          // extrait res.data ou lève une erreur
-      tap(user => this.meSubject.next(user)) // met à jour votre me$
-    );
-}
-
-
-  public isLoggedIn(): boolean {
-    if (!isPlatformBrowser(this.platformId)) {
-      return false;
-    }
-    let token = this.tokenStorage.token;
-    if (!token) {
-      return false;
-    }
-    return true;
-  }
-
-  /** Observable qui émet `true`/`false` selon l’état de connexion */
-  public isLoggedIn$(): Observable<boolean> {
-    return this.me$.pipe(
-      map(user => !!user)
-    );
-  }
-
-  // Exemple de fonction privée pour décoder le token JWT
-  private decodeUserFromToken(token: string): User {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return {
-  id: payload.sub,
-  email: payload.email,
-  firstName: payload.firstName,
-  lastName: payload.lastName,
-  role: payload.role,
-  createdAt: payload.createdAt,
-  updatedAt: payload.updatedAt,
-  toJSON: function (): UserProps {
-    throw new Error('Function not implemented.');
-  },
-  fullName: '',
-  initiales: ''
-};
-  }
+  /* ------------------------------------------------------------------ */
+  /*                              PUBLIC API                            */
+  /* ------------------------------------------------------------------ */
 
   /**
-   * Extract data or throw error selon l'enveloppe ApiResponse
+   * Authentifie l’utilisateur puis charge son profil complet.
    */
-  private unwrap<T>(res: ApiResponse<T>): T {
-    if (!res.success) {
-      throw new Error(res.error.message);
-    }
-    return res.data;
-  }
-
-  /** Appel à POST /auth/login */
   login(dto: LoginDto): Observable<void> {
-  return this.http.post<ApiResponse<AuthPayload>>(
-      `${this.endpoint}/login`,
-      dto,
-      { withCredentials: true }
-    ).pipe(
-      map(res => this.unwrap(res)),
-      tap(({ accessToken }) => this.tokenStorage.token = accessToken),
-      // d’abord émettre le mini-user pour les cas où on a besoin d’un user non-null
-      tap(() => this.meSubject.next(this.tokenStorage.decoded)),
-      // puis récupérer l’objet User complet
-      switchMap(() => this.getMe()),
-      map(() => void 0),
-    );
-}
-
-/** Appel à POST /auth/refresh */
-  refresh(): Observable<void> {
-    return this.http.post<ApiResponse<AuthPayload>>(
-      `${this.endpoint}/login`,
-      dto,
-      { withCredentials: true }
-    ).pipe(
-      map(res => this.unwrap(res)),
-      tap(({ accessToken }) => this.tokenStorage.token = accessToken),
-      // d’abord émettre le mini-user pour les cas où on a besoin d’un user non-null
-      tap(() => this.meSubject.next(this.tokenStorage.decoded)),
-      // puis récupérer l’objet User complet
-      switchMap(() => this.getMe()),
-      map(() => void 0),
-    );
-  }
-
-  /** Appel à POST /auth/logout */
-  logout(): Observable<void> {
     return this.http
-      .post<ApiResponse<null>>(
-        `${this.endpoint}/logout`,
-        {},
-        { withCredentials: true },
-      )
+      .post<ApiResponse<AuthPayload>>(`${this.endpoint}/login`, dto, {
+        withCredentials: true,
+      })
       .pipe(
-        tap(() => {
-          this.tokenStorage.clear();
-          this.meSubject.next(null);
-        }),
+        unwrapResponse<AuthPayload>(),
+        tap(({ accessToken }) => (this.tokenStorage.token = accessToken)),
+        // On émet d’abord le user "light" décodé du JWT afin que l’UI réagisse vite.
+        tap(() => this.meSubject.next(this.tokenStorage.decoded)),
+        // Puis on remplace par le profil complet dès qu’il est disponible.
+        switchMap(() => this.loadMe$),
         map(() => void 0),
       );
   }
 
-  /** Récupère le token JWT stocké */
+  /**
+   * Rafraîchit le token d’accès. Appels concurrents agrégés grâce à shareReplay.
+   */
+  refresh(): Observable<void> {
+    if (!this.refreshing$) {
+      this.refreshing$ = this.http
+        .post<ApiResponse<AuthPayload>>(`${this.endpoint}/refresh`, {}, {
+          withCredentials: true,
+        })
+        .pipe(
+          unwrapResponse<AuthPayload>(),
+          tap(({ accessToken }) => {
+            this.tokenStorage.token = accessToken;
+            // 1. Émet la version « light » pour que les guards et l’UI continuent de fonctionner
+            this.meSubject.next(this.tokenStorage.decoded);
+          }),
+          // 2. Remplace par le profil complet
+          switchMap(() => this.loadMe$),
+          map(() => void 0),
+          finalize(() => (this.refreshing$ = undefined)),
+          shareReplay({ bufferSize: 1, refCount: true }),
+        );
+    }
+    return this.refreshing$;
+  }
+
+  /**
+   * Termine la session côté backend et nettoie le storage local.
+   */
+  logout(): Observable<void> {
+  return this.http
+    .post<ApiResponse<null>>(`${this.endpoint}/logout`, {}, { withCredentials: true })
+    .pipe(
+      tap(() => {
+        // On tente le nettoyage côté backend
+        this.tokenStorage.clear();
+        this.meSubject.next(null);
+      }),
+      map(() => void 0),
+      catchError((err) => {
+        // En cas d’échec (genre 401), on nettoie aussi côté client !
+        this.tokenStorage.clear();
+        this.meSubject.next(null);
+        return of(void 0);
+      })
+    );
+}
+
+  /**
+   * Variante synchrone (à n’utiliser qu’en SSR ou dans les Route Guards).
+   */
+  isLoggedInSync(): boolean {
+    if (!isPlatformBrowser(this.platformId)) return false;
+    const token = this.tokenStorage.token;
+    return !!token && !this.tokenStorage.isExpired(token);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*                               PRIVÉ                                */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * Charge le profil détaillé de l’utilisateur.
+   * Utilise defer() pour repousser l’appel HTTP jusqu’à l’abonnement et cache la réponse.
+   */
+
+  private readonly loadMe$ = defer(() =>
+    this.http.get<ApiResponse<User>>(`${environment.apiBaseUrl}${environment.apiVersion}/auth/me`, {
+      withCredentials: true,
+  })
+  ).pipe(
+    unwrapResponse<User>(),
+    tap((user) => this.meSubject.next(user)),
+
+    catchError((err) => {
+      console.error('Erreur lors du chargement du profil complet', err);
+      this.meSubject.next(null);
+      return of(null);
+    }),
+  );
+
+  /** Accès direct au JWT brut. */
   get token(): string | null {
     return this.tokenStorage.token;
   }
+}
+
+/* ===================================================================== */
+/*                       Opérateur Rx : unwrapResponse<T>()               */
+/* ===================================================================== */
+
+/**
+ * Extrait la propriété data d’une ApiResponse et propage l’erreur si success = false.
+ */
+export function unwrapResponse<T>() {
+  return (source: Observable<ApiResponse<T>>): Observable<T> =>
+    source.pipe(
+      map((res) => {
+        if (!res.success) throw new Error(res.error.message);
+        return res.data;
+      }),
+    );
 }
