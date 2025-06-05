@@ -27,8 +27,6 @@ export class TokenStorageService {
 
   clear(): void {
     if (!this.isBrowser) return;
-    console.log('TokenStorageService.clear() called');
-    
     localStorage.removeItem(environment.TOKEN_NAME);
   }
 

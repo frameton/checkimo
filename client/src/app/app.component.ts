@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';  // <-- CommonModule
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { ToolbarComponent } from './components/toolbar/toolbar.component';
+import { FooterComponent } from './components/footer/footer.component';
 
 
 @Component({
@@ -13,7 +14,8 @@ import { ToolbarComponent } from './components/toolbar/toolbar.component';
     CommonModule,
     MatToolbarModule,
     ToolbarComponent,
-    MatSidenavModule
+    MatSidenavModule,
+    FooterComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'

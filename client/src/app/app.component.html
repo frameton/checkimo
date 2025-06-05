@@ -1,10 +1,15 @@
 <app-toolbar (menuToggle)="sidenav.toggle()"></app-toolbar>
-<mat-sidenav-container>
+<main style="flex:1 0 auto;">
+  <!-- ton router-outlet ou page principale ici -->
+  <router-outlet></router-outlet>
+</main>
+<app-footer></app-footer>
+<!-- <mat-sidenav-container>
   <mat-sidenav #sidenav mode="over">
-    <!-- Liens de navigation -->
   </mat-sidenav>
 
   <mat-sidenav-content>
     <router-outlet></router-outlet>
+    <app-footer></app-footer>
   </mat-sidenav-content>
-</mat-sidenav-container>
+</mat-sidenav-container> -->

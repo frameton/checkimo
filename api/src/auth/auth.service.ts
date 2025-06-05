@@ -4,12 +4,14 @@ import { randomBytes } from 'node:crypto';
 import * as argon2 from 'argon2';
 import { PrismaService } from 'prisma/prisma.service';
 import { Role, User } from '@prisma/client';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwt: JwtService,
+    private readonly UsersService: UsersService, // Assurez-vous que ce service est importé et injecté correctement
   ) {}
 
   /* ---------- helpers ---------- */
@@ -31,15 +33,20 @@ export class AuthService {
   /* ---------- public API ---------- */
 
   /** Validation lors du login */
-  async validateUser(email: string, password: string) {
+ async validateUser(email: string, password: string) {
     const user = await this.prisma.user.findUnique({
       where: { email },
-      select: { id: true, email: true, password: true, role: true },
+      select: { id: true, email: true, password: true, role: true, isEmailConfirmed: true },
     });
     if (!user || !(await argon2.verify(user.password, password))) {
       throw new UnauthorizedException();
     }
-    return user;  // contient désormais .role
+
+    if (!user.isEmailConfirmed) {
+      throw new UnauthorizedException("Veuillez confirmer votre email avant de vous connecter.");
+    }
+
+    return user;
   }
 
   /** Login → renvoie access + refresh */

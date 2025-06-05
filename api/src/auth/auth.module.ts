@@ -7,12 +7,14 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { RefreshStrategy } from './strategies/refresh.strategy';
 import { UsersModule } from '../users/users.module';
 import { UsersService } from 'src/users/users.service';
+import { MailModule } from 'src/mail/mail.module';
 
 
 @Module({
   imports: [
     PassportModule,
     UsersModule,
+    MailModule,
     JwtModule.register({
       secret: process.env.JWT_ACCESS_SECRET,
       signOptions: { expiresIn: '15m' },

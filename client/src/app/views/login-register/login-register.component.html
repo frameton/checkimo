@@ -1,0 +1,113 @@
+<div class="loginWrapper" *ngIf="mode === 'login'">
+  <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="form">
+        <h2>Connexion</h2>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" type="email" autocomplete="username">
+          <mat-error *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+            Email requis ou invalide.
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Mot de passe</mat-label>
+          <input matInput formControlName="password" type="password" autocomplete="current-password">
+          <mat-error *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+            Mot de passe requis.
+          </mat-error>
+        </mat-form-field>
+        <button class="app-btn blue-btn" color="primary" type="submit" [disabled]="loginForm.invalid">
+          Se connecter
+        </button>
+  </form>
+  <div class="loginLinks">
+    <p>Pas encore inscrit ? <span (click)="switchMode('register')">Inscrivez-vous.</span></p>
+    <span (click)="switchMode('forgotPassword')">J'ai oublié mon mot de passe.</span>
+  </div>
+</div>
+
+<div class="registerWrapper" *ngIf="mode === 'register'">
+  <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="form" *ngIf="!emailSent">
+    <h2>Inscription</h2>
+
+    <!-- Ligne Nom + Prénom -->
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Nom</mat-label>
+        <input matInput formControlName="lastName" autocomplete="family-name">
+        <mat-error *ngIf="registerForm.get('lastName')?.invalid && registerForm.get('lastName')?.touched">
+          Champ requis.
+        </mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Prénom</mat-label>
+        <input matInput formControlName="firstName" autocomplete="given-name">
+        <mat-error *ngIf="registerForm.get('firstName')?.invalid && registerForm.get('firstName')?.touched">
+          Champ requis.
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+  <!-- Ligne Email + Confirmez Email -->
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" type="email" autocomplete="email">
+        <mat-error *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+          Email requis ou invalide.
+        </mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Confirmez l'email</mat-label>
+        <input matInput formControlName="emailConfirm" type="email" autocomplete="email">
+        <mat-error *ngIf="registerForm.hasError('emailMismatch') && registerForm.get('emailConfirm')?.touched">
+          Les emails ne correspondent pas.
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+  <!-- Ligne Mot de passe + Confirmation -->
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Mot de passe</mat-label>
+        <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" autocomplete="new-password">
+        <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
+          <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+        <mat-hint *ngIf="registerForm.get('password')?.dirty && !passwordStrength" style="color:#c62828">
+          Au moins 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre, 1 caractère spécial.
+        </mat-hint>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Confirmez le mot de passe</mat-label>
+        <input matInput [type]="hidePasswordConfirm ? 'password' : 'text'" formControlName="passwordConfirm" autocomplete="new-password">
+        <button mat-icon-button matSuffix type="button" (click)="hidePasswordConfirm = !hidePasswordConfirm">
+          <mat-icon>{{hidePasswordConfirm ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+        <mat-error *ngIf="registerForm.hasError('passwordMismatch') && registerForm.get('passwordConfirm')?.touched">
+          Les mots de passe ne correspondent pas.
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Bouton submit et messages -->
+     <button class="app-btn blue-btn" color="primary" type="submit" [disabled]="registerForm.invalid || isLoading">
+        S'inscrire
+        <span class="smallLoader" *ngIf="isLoading"></span>
+      </button>
+    <mat-error *ngIf="registerError" class="block">{{registerError}}</mat-error>
+    <div *ngIf="registerSuccess" class="mat-body-2 mat-success block">{{registerSuccess}}</div>
+    <div class="registerLinks">
+      <p>Déjà inscrit ? <span (click)="switchMode('login')">Connectez-vous.</span></p>
+    </div>
+  </form>
+  <div *ngIf="emailSent" class="emailSentWrapper">
+    <h2>Inscription</h2>
+    <p>Un email de confirmation a été envoyé à votre adresse mail.</p>
+    <p>Veuillez cliquer sur le lien dans l'email pour finaliser votre inscription.</p>
+    <div class="emailSentLinks">
+      <button class="app-btn blue-btn" color="primary" (click)="resendEmail()">Renvoyer l'email</button>
+      <button class="app-btn blue-btn" color="primary" (click)="redirectLanding()">Accueil</button>
+    </div>
+    <!-- <button class="app-btn blue-btn" color="primary" (click)="resendEmail()">Renvoyer l'email</button> -->
+  </div>
+</div>

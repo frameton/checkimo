@@ -15,6 +15,9 @@ import { TokenStorageService } from '@/app/services/token-storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class TokenInterceptor implements HttpInterceptor {
+  // Flag pour empêcher la boucle de logout
+  private isLoggingOut = false;
+
   constructor(
     private readonly injector: Injector,
     private readonly tokenStorage: TokenStorageService,
@@ -30,7 +33,7 @@ export class TokenInterceptor implements HttpInterceptor {
     next: HttpHandler,
   ): Observable<HttpEvent<any>> {
     // Les endpoints d’auth ne doivent pas embarquer le JWT ni déclencher de refresh.
-    if (this.isAuthEndpoint(req.url)) {
+    if (this.isAuthEndpoint(req)) {
       return next.handle(req);
     }
 
@@ -65,10 +68,18 @@ export class TokenInterceptor implements HttpInterceptor {
     });
   }
 
-  private isAuthEndpoint(url: string): boolean {
-    // Ajustez le regexp si nécessaire selon votre routing.
-    return /\/auth\/(login|refresh)$/.test(url);
-  }
+  private readonly openAuthEndpoints = [
+  { method: 'POST', urlEnd: '/api/v1/auth/login' },
+  { method: 'POST', urlEnd: '/api/v1/auth/refresh' },
+  { method: 'POST', urlEnd: '/api/v1/users' }
+  // Ajoute ici d'autres exceptions si besoin
+];
+
+private isAuthEndpoint(req: HttpRequest<any>): boolean {
+  return this.openAuthEndpoints.some(
+    endpoint => req.method === endpoint.method && req.url.endsWith(endpoint.urlEnd)
+  );
+}
 
   /**
    * Gère les 401 : tente un refresh puis rejoue la requête une seule fois.
@@ -91,9 +102,17 @@ export class TokenInterceptor implements HttpInterceptor {
     return throwError(() => error);
   }
 
-  private logoutAndRedirect(err: unknown): Observable<never> {
-    this.auth.logout().subscribe();      // nettoyage + cookie clear
-    this.router.navigate(['/login']);    // redirection immédiate
-    return throwError(() => err);
+  /**
+   * Effectue le logout et redirige vers la page de connexion,
+   * sans retomber dans une boucle infinie.
+   */
+  private logoutAndRedirect(error: any): Observable<never> {
+    if (!this.isLoggingOut) {
+      this.isLoggingOut = true;
+      this.tokenStorage.clear();
+      this.router.navigate(['/login']);
+    }
+    // Important : on retourne une erreur pour casser la chaîne RxJS, sans relancer d'autre requête
+    return throwError(() => error);
   }
 }

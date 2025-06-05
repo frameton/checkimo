@@ -7,6 +7,7 @@ import { AdminComponent } from './views/admin/admin.component';
 import { DashboardComponent } from './views/dashboard/dashboard.component';
 import { NotFoundComponent } from './views/not-found/not-found.component';
 import { LandingComponent } from './views/landing/landing.component';
+import { LoginRegisterComponent } from './views/login-register/login-register.component';
 
 export const routes: Routes = [
 //   { path: '', component: HomeComponent },
@@ -14,7 +15,7 @@ export const routes: Routes = [
   //(publique)
   {
     path: 'login',
-    component: LoginComponent
+    component: LoginRegisterComponent
   },
 
   {

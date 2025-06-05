@@ -41,7 +41,7 @@ export class UserService {
       .pipe(map((res) => this.unwrap(res)));
   }
 
-  create(payload: Partial<User>): Observable<User> {
+  create(payload: any): Observable<User> {
     return this.http
       .post<ApiResponse<User>>(this.endpoint, payload)
       .pipe(map((res) => this.unwrap(res)));

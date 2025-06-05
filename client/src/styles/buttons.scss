@@ -8,6 +8,7 @@
     border-radius: 5px;
     font-size: smaller;
     text-align: center;
+    transition: 0.2s;
 
     & > img {
         width: 1em;
@@ -46,7 +47,11 @@
 }
 
 .app-btn:disabled {
-    cursor: not-allowed;
+    // cursor: not-allowed;
+    opacity: 0.5;
+    background-color: variables.$gray2;
+    border: none;
+    cursor: default;
 }
 
 // Border button section

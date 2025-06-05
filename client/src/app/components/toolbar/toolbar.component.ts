@@ -66,14 +66,14 @@ export class ToolbarComponent {
     }
   }
 
-  ngAfterViewInit(): void {
-    // console.log(this.isLoggedIn$.source?.source);
-    this.user$.subscribe(u => console.log('me$', u));
+  // ngAfterViewInit(): void {
+  //   // console.log(this.isLoggedIn$.source?.source);
+  //   this.user$.subscribe(u => console.log('me$', u));
 
-    this.isLoggedIn$.subscribe(u => console.log('log$', u));
+  //   this.isLoggedIn$.subscribe(u => console.log('log$', u));
     
     
-  }
+  // }
 
   get initials(): string {
     const user = this.userSubject.getValue();

@@ -1,0 +1,23 @@
+@use "variables"; // Importer les variables SCSS
+
+.footer-simple {
+  width: 100%;
+  background: #101010;
+  color: variables.$white;
+  padding: 28px 0 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+
+  .app-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: variables.$blue3;
+  }
+  .copyright {
+    font-size: 1rem;
+    color: #bbb;
+  }
+}

@@ -6,6 +6,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { Role } from '@prisma/client';
+import { Query } from '@nestjs/common';
 
 @Controller('users')
 export class UsersController {
@@ -14,6 +15,18 @@ export class UsersController {
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
+  }
+
+  @Post('confirm')
+  async confirmEmail(@Query('token') token: string) {
+    return this.usersService.confirmEmail(token);
+  }
+
+  @Post('admin')
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  adminCreate(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.adminCreate(createUserDto);
   }
 
   @Get()

@@ -1,0 +1,286 @@
+@use "variables"; // Importer les variables SCSS
+
+:host {
+  display: block;
+  min-height: 100vh;
+  width: 100%;
+  background: url('src/assets/outdoor3_comp.jpg') center center/cover no-repeat !important;
+  background-attachment: fixed !important;
+  // height: 100vh;
+  // width: 100vw;
+}
+
+.form {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.form-row {
+  display: flex;
+  justify-content: center;
+  gap: 1.2rem;
+  margin-bottom: 1.2rem;
+
+  @media (max-width: 700px) {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+.half-width {
+  flex: 0 0 250px; // largeur fixe sur desktop
+  max-width: 220px;
+  min-width: 0;
+}
+
+
+.login-register-container {
+  max-width: 420px;
+  margin: 3rem auto;
+  padding: 2rem 1.5rem 1.5rem 1.5rem;
+  border-radius: 1rem;
+  background: variables.$white;
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    h2 {
+      text-align: center;
+      font-weight: 400;
+    }
+    .full-width {
+      width: 100%;
+    }
+    .block {
+      display: block;
+      margin-top: 1rem;
+    }
+    .mat-success {
+      color: variables.$green3;
+    }
+  }
+}
+
+.loginWrapper {
+  position: absolute;
+  left: 0px;
+  width: 55%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: variables.$black;
+  clip-path: polygon(0 0, 75% 0, 100% 100%, 0 100%);
+
+  // padding: 2rem 1.5rem 1.5rem 1.5rem;
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 250px;
+    h2 {
+      text-align: center;
+      font-weight: 400;
+      color: variables.$white;
+    }
+    .full-width {
+      width: 100%;
+    }
+    .block {
+      display: block;
+      margin-top: 1rem;
+    }
+    .mat-success {
+      color: variables.$green3;
+    }
+    margin-bottom: 40px;
+  }
+
+  .loginLinks {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    p {
+      color: variables.$gray3;
+      font-size: 0.8rem;
+      margin: 0;
+      text-align: center;
+      margin-bottom: 5px;
+    }
+    span {
+      font-size: 0.8rem;
+      color: variables.$blue3;
+      text-decoration: none;
+      margin-bottom: 5px;
+      &:hover {
+        cursor: pointer;
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+.registerWrapper {
+  position: absolute;
+  right: 0px;
+  width: 55%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: variables.$black;
+  clip-path: polygon(25% 0, 100% 0, 100% 100%, 0 100%);
+  
+  //padding: 2rem 1.5rem 1.5rem 1.5rem;
+  .form {
+    display: flex;
+    flex-direction: column;
+    margin-right: 20px;
+    margin-top: 50px;
+    h2 {
+      text-align: center;
+      font-weight: 400;
+      color: variables.$white
+    }
+    button {
+      position: relative;
+      width: 40%;
+      margin: auto !important;
+      margin-top: 1rem !important;
+
+      span {
+        position: absolute;
+        top: 50%;
+        left: 110%;
+        transform: translateY(-50%);
+      }
+    }
+    .full-width {
+      width: 100%;
+    }
+    .block {
+      display: block;
+      margin-top: 1rem;
+    }
+    .mat-success {
+      color: variables.$green3;
+    }
+    margin-bottom: 40px;
+    .registerLinks {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 30px;
+      p {
+        color: variables.$gray3;
+        font-size: 0.8rem;
+        margin: 0;
+        text-align: center;
+        margin-bottom: 5px;
+      }
+      span {
+        font-size: 0.8rem;
+        color: variables.$blue3;
+        text-decoration: none;
+        margin-bottom: 5px;
+        &:hover {
+          cursor: pointer;
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+
+  
+}
+
+
+::ng-deep mat-form-field {
+  width: 100%;
+
+  .mat-mdc-text-field-wrapper {
+    border-radius: 8px;
+  }
+
+  .mat-mdc-form-field-infix {
+    color: variables.$white !important;
+  }
+
+  .mat-mdc-floating-label,
+  .mat-mdc-form-field-label {
+    color: variables.$gray3 !important;
+    opacity: 1 !important;
+  }
+
+  .mat-mdc-input-element {
+    color: variables.$white !important;
+    caret-color: variables.$white !important;
+  }
+
+  .mat-mdc-input-element:hover {
+    color: variables.$white !important;
+    caret-color: variables.$white !important;
+  }
+
+  .mat-mdc-form-field-underline {
+    background-color: variables.$blue3 !important; // Ligne bleue sous l'input (personnalisable)
+  }
+
+  .mat-mdc-form-field-ripple {
+    background-color: variables.$blue3 !important; // Ripple au focus
+  }
+}
+
+
+
+.emailSentWrapper {
+  width: 60%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: variables.$black;
+  padding: 2rem 1.5rem 1.5rem 1.5rem;
+  
+  h2 {
+    text-align: center;
+    font-weight: 400;
+    color: variables.$white;
+    margin-bottom: 30px;
+    font-size: larger;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: -20px; // Ajustement pour le centrer verticalement
+  }
+
+  p {
+    color: variables.$gray3;
+    font-size: 0.9rem;
+    margin: 0;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .emailSentLinks {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    margin-top: 30px;
+  }
+
+  button {
+    position: relative;
+    width: 100%;
+    margin: auto !important;
+    margin: 5px !important;
+  }
+}
