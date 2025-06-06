@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UserService } from '../../services/user.service';
 import { Router } from '@angular/router';
+import { environment } from '@/environments/environments';
 
 @Component({
   selector: 'app-login-register',
@@ -31,10 +32,17 @@ export class LoginRegisterComponent {
   loginForm: FormGroup;
   registerForm: FormGroup;
   registerError: string | null = null;
+  resendEmailError: string | null = null;
+  resendEmailSuccess: string | null = null;
   registerSuccess: string | null = null;
   hidePassword = true;
   hidePasswordConfirm = true;
   emailSent: boolean = false;
+  appName = environment.appName;
+  saveEmailSent: string | null = null;
+
+  cooldownSeconds = 0;
+  private cooldownDuration = 60;
 
   private lastRegisterTime = 0;
   private registerCooldown = 3000;
@@ -120,19 +128,53 @@ export class LoginRegisterComponent {
   return { passwordMismatch: true };
 }
 
-  redirectLanding() {
+  redirectLogin() {
     // Redirection vers la page d'accueil ou une autre page
-    this.router.navigate(['/landing']);
+    this.switchMode('login');
   }
 
   resendEmail() {
+    if (this.cooldownSeconds > 0) {
+      this.resendEmailSuccess = null;
+      this.resendEmailError = `Veuillez patienter ${this.cooldownSeconds} secondes avant une nouvelle demande.`;
+      return;
+    }
+    this.isLoading = true;
+    let obj = {
+      email: this.saveEmailSent
+    }
+    this.userService.resendEmailConfirm(obj).subscribe({
+      next: (data: any) => {
+        this.resendEmailError = null;
+        this.resendEmailSuccess = "Si un compte existe, un email de confirmation a été renvoyé.";
+        this.isLoading = false;
+        this.startCooldown();
+      },
+      error: (err: any) => {
+        console.log(err);
+        
+        this.resendEmailSuccess = null;
+        this.resendEmailError = `Une erreur est survenue, veuillez réessayer ultérieurement.`;
+        this.isLoading = false;
+      }
+    });
+  }
 
+  startCooldown() {
+    this.cooldownSeconds = this.cooldownDuration;
+    const interval = setInterval(() => {
+      this.cooldownSeconds--;
+      if (this.cooldownSeconds <= 0) {
+        clearInterval(interval);
+      }
+    }, 1000);
   }
 
   switchMode(mode: string) {
     this.mode = mode as 'login' | 'register' | "forgotPassword";
     this.registerError = null;
     this.registerSuccess = null;
+    this.saveEmailSent = null;;
     this.loginForm.reset();
     this.registerForm.reset();
   }
@@ -166,6 +208,8 @@ export class LoginRegisterComponent {
         this.registerError = null;
         this.registerForm.reset();
         this.isLoading = false;
+        this.saveEmailSent = obj.email;
+        this.startCooldown();
       },
       error: err => {
         console.log(err);

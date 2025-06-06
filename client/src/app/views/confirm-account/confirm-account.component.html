@@ -1,0 +1,16 @@
+<div class="wrapper">
+    <h2>{{ appName }}</h2>
+    @if (status === 'success') {
+        <p class="successTextL1">Votre compte Ymoia a bien été confirmé !</p>
+        <p class="successTextL2">Vous pouvez dès à présent vous connecter.</p>
+        <button class="app-btn blue-btn" color="primary" (click)="redirectLogin()">Connexion</button>
+    } @else if (status === 'error') {
+        <p class="errorText">Lien invalide ou déjà utilisé. Si votre compte est activé, connectez-vous.</p>
+        <button class="app-btn blue-btn" color="primary" (click)="redirectLogin()">Connexion</button>
+    } @else {
+        <div class="loadingWrapper">
+            <p class="loadingText">Confirmation de votre compte en cours...</p>
+            <span class="smallLoader blackLoader"></span>
+        </div>
+    }
+</div>

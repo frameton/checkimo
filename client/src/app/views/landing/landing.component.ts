@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { environment } from '@/environments/environments';
 
 @Component({
   selector: 'app-landing',
@@ -7,5 +8,5 @@ import { Component } from '@angular/core';
   styleUrl: './landing.component.scss'
 })
 export class LandingComponent {
-
+  appName = environment.appName;
 }

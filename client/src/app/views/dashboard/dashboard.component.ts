@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { environment } from '@/environments/environments';
 
 @Component({
   selector: 'app-dashboard',
@@ -7,5 +8,5 @@ import { Component } from '@angular/core';
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent {
-
+  appName = environment.appName;
 }

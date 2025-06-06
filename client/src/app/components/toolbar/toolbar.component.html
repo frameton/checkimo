@@ -5,7 +5,7 @@
   </button>
 
   <!-- Logo -->
-  <a mat-button class="logo" routerLink="/landing">Omelia</a>
+  <a mat-button class="logo" routerLink="/landing">{{ appName }}</a>
   <div class="separator" *ngIf="isLoggedIn$ | async"></div>
 
   <!-- Liens principaux (desktop) -->

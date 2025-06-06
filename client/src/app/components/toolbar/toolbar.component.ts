@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { BehaviorSubject, Observable, take } from 'rxjs';
+import { environment } from '@/environments/environments';
 
 import { User } from '@/app/models/user.model';
 import { AuthService } from '@/app/services/auth.service';
@@ -34,6 +35,8 @@ export class ToolbarComponent {
 
   isLoggedIn$!: Observable<boolean>;
   user$!: Observable<User | null>;
+
+  appName = environment.appName;
 
   private readonly userSubject = new BehaviorSubject<User | null>(null);
 

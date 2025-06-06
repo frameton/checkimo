@@ -17,8 +17,19 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
+  @Post('resend-confirmation')
+  async resendConfirmation(@Body('email') email: string) {
+    if (!email) {
+      throw new Error('Email is required.');
+    }
+    return this.usersService.resendConfirmationEmail(email);
+  }
+
   @Post('confirm')
-  async confirmEmail(@Query('token') token: string) {
+  async confirmEmail(@Body('token') token: string) {
+    if (!token) {
+      throw new Error('Token is required for email confirmation.');
+    }
     return this.usersService.confirmEmail(token);
   }
 

@@ -725,6 +725,15 @@
   animation-delay: 1s;
 }
 
+.blackLoader::after,
+.blackLoader::before {
+    border: 2px solid variables.$black !important;
+}
+
+.blueLoader {
+    border: 2px solid variables.$blue3;
+}
+
 
 @keyframes animloader {
   0% {

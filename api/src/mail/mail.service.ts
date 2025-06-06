@@ -18,11 +18,8 @@ export class MailService {
   }
 
   async sendConfirmationEmail(toEmail: string, confirmationToken: string) {
-    console.log("pass");
     
-    const confirmUrl = `https://localhost:4200/confirm-account?token=${confirmationToken}`;
-
-    console.log(`Envoi de l'email de confirmation à ${toEmail} avec le token ${confirmationToken}`);
+    const confirmUrl = `http://localhost:4200/confirm-account?token=${confirmationToken}`;
     
     try {
       await this.mailjet.post('send', { version: 'v3.1' }).request({
@@ -40,15 +37,9 @@ export class MailService {
         Merci de vous être inscrit.<br>
         Cliquez sur le lien ci-dessous pour activer votre compte :
       </p>
-      <p style="margin:20px 0;">
-        <a href="${confirmUrl}" style="display:inline-block;padding:10px 22px;background:#2166f5;color:#fff;font-weight:600;text-decoration:none;border-radius:6px;font-size:16px;">
-          Activer mon compte
-        </a>
-      </p>
-      <p style="color:#666;font-size:13px;margin:24px 0 0 0;">
-        Ce lien est valable 1 heure.<br>
-        Si le bouton ne fonctionne pas, copiez-collez ce lien dans votre navigateur :<br>
         <span style="color:#2166f5;">${confirmUrl}</span>
+        <p style="color:#666;font-size:13px;margin:24px 0 0 0;">
+        Ce lien est valable 1 heure.<br>
       </p>
     </div>
     <div style="font-size:12px;color:#bbb;text-align:center;margin-top:30px;">
@@ -60,7 +51,6 @@ export class MailService {
         ],
       });
       Logger.log(`Confirmation email sent to ${toEmail}`);
-      console.log(`Email de confirmation envoyé à ${toEmail}`);
       
     } catch (err) {
         console.log('Erreur lors de l’envoi du mail de confirmation', err);

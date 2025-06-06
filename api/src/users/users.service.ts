@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'prisma/prisma.service';
@@ -6,6 +6,8 @@ import { Prisma } from '@prisma/client';
 import * as argon2 from 'argon2';
 import { randomUUID } from 'crypto';
 import { MailService } from 'src/mail/mail.service';
+
+const RESEND_CONFIRMATION_COOLDOWN_MS = 1 * 60 * 1000; // 2 minutes
 
 @Injectable()
 export class UsersService {
@@ -44,8 +46,50 @@ export class UsersService {
   }
 
 
+   async resendConfirmationEmail(email: string) {
+  
+    const user = await this.prisma.user.findUnique({ where: { email } });
+
+    // Toujours même réponse, que l'utilisateur existe ou non
+    const genericMsg = "Si un compte existe, un email de confirmation a été envoyé.";
+    
+    if (!user) {
+       throw new Error("Error.");
+    }
+    if (user.isEmailConfirmed) {
+      throw new Error("Email déjà confirmé, vous pouvez vous connecter directement.");
+    }
+
+    // Limitation anti-abus : ne pas renvoyer trop souvent
+    if (user.confirmationSentAt && new Date().getTime() - user.confirmationSentAt.getTime() < RESEND_CONFIRMATION_COOLDOWN_MS) {
+      throw new Error("Merci de patienter avant de redemander un nouvel email de confirmation.");
+    }
+
+    // Regénère un token pour chaque nouvel envoi
+    const confirmationToken = randomUUID();
+    try {
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          confirmationToken,
+          confirmationSentAt: new Date(),
+        },
+      });
+
+      await this.mailService.sendConfirmationEmail(user.email, confirmationToken);
+
+      // Logger.log(`Confirmation email resent to ${email}`);
+      return { message: genericMsg };
+    } catch (err) {
+      // Logger.error(`Erreur lors du renvoi email confirmation à ${email}`, err);
+      return { message: "Une erreur technique est survenue. Merci de réessayer plus tard." };
+    }
+  }
+
+
   async confirmEmail(token: string) {
     const user = await this.prisma.user.findUnique({ where: { confirmationToken: token } });
+    
     if (!user) throw new Error("Token invalide ou déjà utilisé");
 
     // Option : limite dans le temps (ex 24h)

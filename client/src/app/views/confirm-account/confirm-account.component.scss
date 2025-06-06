@@ -1,0 +1,74 @@
+@use "variables"; // Importer les variables SCSS
+
+:host {
+  display: block;
+  min-height: 100vh;
+  width: 100%;
+  background: url('src/assets/outdoor7_comp.jpg') center center/cover no-repeat !important;
+  background-attachment: fixed !important;
+  // height: 100vh;
+  // width: 100vw;
+}
+
+.wrapper {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 300px;
+    width: 80vw;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) !important;
+    background-color: variables.$white;
+    border-radius: 1rem;
+    padding: 2rem;
+
+    h2 {
+        text-align: center;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        font-size: 40px;
+        color: variables.$blue3;
+    }
+
+    .successTextL1 {
+        font-size: 16px;
+        color: variables.$black;
+        text-align: center;
+        margin-bottom: 0px;
+    }
+    .successTextL2 {
+        font-size: 16px;
+        color: variables.$black;
+        text-align: center;
+        margin: 0px;
+        margin-bottom: 50px;
+    }
+
+    .loadingWrapper {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        justify-content: center;
+        margin-top: 50px;
+        margin-bottom: 50px;
+
+        .loadingText {
+            font-size: 16px;
+            color: variables.$black;
+            text-align: center;
+            margin-right: 20px;
+        }
+    }
+
+    .errorText {
+        font-size: 16px;
+        color: variables.$black;
+        text-align: center;
+        margin-top: 25px;
+        margin-bottom: 50px;
+    }
+
+}

@@ -58,6 +58,19 @@ export class UserService {
       .delete<ApiResponse<null>>(`${this.endpoint}/${id}`)
       .pipe(map(() => void 0)); // on ignore le body
   }
+
+  confirmInscription(payload: any): Observable<User> {
+    return this.http
+      .post<ApiResponse<User>>(`${this.endpoint}/confirm`, payload)
+      .pipe(map((res) => this.unwrap(res)));
+  }
+
+  resendEmailConfirm(payload: any): Observable<User> {
+    return this.http
+      .post<ApiResponse<User>>(`${this.endpoint}/resend-confirmation`, payload)
+      .pipe(map((res) => this.unwrap(res)));
+  }
+
 }
 
 // ---------------------------------------------------------------------------

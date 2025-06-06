@@ -71,7 +71,9 @@ export class TokenInterceptor implements HttpInterceptor {
   private readonly openAuthEndpoints = [
   { method: 'POST', urlEnd: '/api/v1/auth/login' },
   { method: 'POST', urlEnd: '/api/v1/auth/refresh' },
-  { method: 'POST', urlEnd: '/api/v1/users' }
+  { method: 'POST', urlEnd: '/api/v1/users' },
+  { method: 'POST', urlEnd: '/api/v1/users/resend-confirmation' },
+  { method: 'POST', urlEnd: '/api/v1/users/confirm' }
   // Ajoute ici d'autres exceptions si besoin
 ];
 

@@ -106,8 +106,12 @@
     <p>Veuillez cliquer sur le lien dans l'email pour finaliser votre inscription.</p>
     <div class="emailSentLinks">
       <button class="app-btn blue-btn" color="primary" (click)="resendEmail()">Renvoyer l'email</button>
-      <button class="app-btn blue-btn" color="primary" (click)="redirectLanding()">Accueil</button>
+      <button class="app-btn blue-btn" color="primary" (click)="redirectLogin()">Connexion</button>
     </div>
-    <!-- <button class="app-btn blue-btn" color="primary" (click)="resendEmail()">Renvoyer l'email</button> -->
+    <div class="resendEmailMsg">
+      <span class="smallLoader" *ngIf="isLoading"></span>
+      <p class="resendSuccess" *ngIf="resendEmailSuccess">{{ resendEmailSuccess }}</p>
+      <p class="resendError" *ngIf="resendEmailError">{{ resendEmailError }}</p>
+    </div>
   </div>
 </div>
