@@ -7,6 +7,7 @@ import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { Role } from '@prisma/client';
 import { Query } from '@nestjs/common';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('users')
 export class UsersController {
@@ -31,6 +32,16 @@ export class UsersController {
       throw new Error('Token is required for email confirmation.');
     }
     return this.usersService.confirmEmail(token);
+  }
+
+  @Post('reset-password')
+  async requestResetPassword(@Body('email') email: string) {
+    return this.usersService.sendResetPasswordEmail(email);
+  }
+
+  @Post('confirm-reset-password')
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.usersService.resetPassword(dto.token, dto.newPassword);
   }
 
   @Post('admin')

@@ -8,8 +8,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UserService } from '../../services/user.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { environment } from '@/environments/environments';
+import { AuthService } from '@/app/services/auth.service';
 
 @Component({
   selector: 'app-login-register',
@@ -28,18 +29,23 @@ import { environment } from '@/environments/environments';
   ]
 })
 export class LoginRegisterComponent {
-  isLoading = false;
+  isLoading: boolean = false;
   loginForm: FormGroup;
   registerForm: FormGroup;
+  forgotPasswordForm: FormGroup;
   registerError: string | null = null;
+  loginError: string | null = null;
   resendEmailError: string | null = null;
   resendEmailSuccess: string | null = null;
   registerSuccess: string | null = null;
-  hidePassword = true;
-  hidePasswordConfirm = true;
+  hidePassword: boolean = true;
+  hidePasswordConfirm: boolean = true;
+  forgotPasswordError: string | null = null;
+  forgotPasswordSuccess: string | null = null;
   emailSent: boolean = false;
-  appName = environment.appName;
+  appName: string = environment.appName;
   saveEmailSent: string | null = null;
+  loginBlocked: boolean = false;
 
   cooldownSeconds = 0;
   private cooldownDuration = 60;
@@ -49,10 +55,14 @@ export class LoginRegisterComponent {
 
   mode: 'login' | 'register' | "forgotPassword" = 'login'; // état du mode (à définir dans la classe)
 
-  constructor(private fb: FormBuilder, private userService: UserService, private router: Router) {
+  constructor(private fb: FormBuilder, private userService: UserService, private router: Router, private route: ActivatedRoute, private auth: AuthService) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
+    });
+
+    this.forgotPasswordForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]]
     });
 
     this.registerForm = this.fb.group({
@@ -154,7 +164,7 @@ export class LoginRegisterComponent {
         console.log(err);
         
         this.resendEmailSuccess = null;
-        this.resendEmailError = `Une erreur est survenue, veuillez réessayer ultérieurement.`;
+        this.resendEmailError = "Une erreur est survenue, veuillez réessayer ultérieurement.";
         this.isLoading = false;
       }
     });
@@ -174,7 +184,10 @@ export class LoginRegisterComponent {
     this.mode = mode as 'login' | 'register' | "forgotPassword";
     this.registerError = null;
     this.registerSuccess = null;
-    this.saveEmailSent = null;;
+    this.saveEmailSent = null;
+    this.forgotPasswordError = null;
+    this.forgotPasswordSuccess = null;
+    this.emailSent = false;
     this.loginForm.reset();
     this.registerForm.reset();
   }
@@ -222,9 +235,71 @@ export class LoginRegisterComponent {
     });
   }
 
+  onForgotPassword() {
+    this.isLoading = true;
+    if (this.forgotPasswordForm.invalid) {
+      this.loginError = "Veuillez entrer un email valide.";
+      this.isLoading = false;
+      return;
+    }
+    let obj = {
+      email: this.forgotPasswordForm.get('email')?.value.trim()
+    }
+    this.userService.forgotPassword(obj).subscribe({
+      next: (data: any) => {
+        this.forgotPasswordError = null;
+        this.forgotPasswordSuccess = "Un email de réinitialisation a été envoyé si l'email est associé à un compte.";
+        this.isLoading = false;
+      },
+      error: (err: any) => {
+        this.forgotPasswordSuccess = null;
+        this.forgotPasswordError = "Une erreur est survenue, veuillez réessayer ultérieurement.";
+        this.isLoading = false;
+      }
+    });
+  }
+
   onLogin() {
-    // À compléter selon ton service Auth (exemple)
-    // this.authService.login(this.loginForm.value).subscribe(...);
+    this.loginError = null;
+    if (this.loginForm.invalid) {
+      // this.loginError = "Veuillez remplir tous les champs correctement.";
+      return;
+    }
+    this.isLoading = true;
+    let obj = {
+      email: this.loginForm.get('email')?.value.trim(),
+      password: this.loginForm.get('password')?.value
+    }
+    this.auth.login(obj).subscribe({
+    next: (data: any) => {
+      const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/dashboard';
+      this.router.navigateByUrl(returnUrl);
+      this.isLoading = false;
+      this.loginError = null; // Réinitialise l'erreur en cas de succès
+    },
+    error: (err: any) => {
+      // Message neutre, jamais de précision sur email/mdp
+      if (err.status === 429) {
+        this.loginError = "Trop de tentatives. Merci de patienter quelques instants.";
+        this.blockLoginTemporarily(); // voir ci-dessous
+      } else {
+        this.loginError = err?.error?.message || "Email ou mot de passe invalide.";
+      }
+      this.isLoading = false;
+    }
+  });
+}
+
+  blockLoginTemporarily() {
+    this.loginBlocked = true;
+    let cooldown = 60; // secondes
+    const interval = setInterval(() => {
+      cooldown--;
+      if (cooldown <= 0) {
+        this.loginBlocked = false;
+        clearInterval(interval);
+      }
+    }, 1000);
   }
 
   get passwordStrength() {

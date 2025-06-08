@@ -17,9 +17,42 @@ export class MailService {
 
   }
 
+  async sendResetPasswordEmail(toEmail: string, resetToken: string) {
+    const resetUrl = `http://localhost:4200/reset-password?token=${encodeURIComponent(resetToken)}`;
+    await this.mailjet.post('send', { version: 'v3.1' }).request({
+        Messages: [
+        {
+            From: { Email: this.fromEmail, Name: this.fromName },
+            To: [{ Email: toEmail }],
+            Subject: 'Réinitialisation de votre mot de passe',
+            HTMLPart: `
+                <div style="font-family:Arial,sans-serif;max-width:480px;margin:auto;padding:32px 24px;background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
+                <h2 style="font-size:30px;color:#2166f5;margin-bottom:8px;margin-top:0;text-align:center;">Ymoia</h2>
+                <div style="margin-bottom:24px;">
+                <h3 style="color:#222;margin-bottom:10px;">Réinitialisez votre mot de passe</h3>
+                <p style="color:#444;font-size:14px;line-height:1.6;margin:0 0 16px 0;">
+                Vous avez demandé la réinitialisation de votre mot de passe.<br>
+                Cliquez sur le lien ci-dessous pour choisir un nouveau mot de passe&nbsp;:
+                </p>
+                <span style="color:#2166f5;">${resetUrl}</span>
+                <p style="color:#666;font-size:13px;margin:24px 0 0 0;">
+                Ce lien est valable 1 heure.<br>
+                </p>
+                </div>
+                <div style="font-size:12px;color:#bbb;text-align:center;margin-top:30px;">
+                © Ymoia ${new Date().getFullYear()}
+                </div>
+                </div>
+            `,
+        },
+        ],
+        });
+    }
+
+
   async sendConfirmationEmail(toEmail: string, confirmationToken: string) {
     
-    const confirmUrl = `http://localhost:4200/confirm-account?token=${confirmationToken}`;
+    const confirmUrl = `http://localhost:4200/confirm-account?token=${encodeURIComponent(confirmationToken)}`;
     
     try {
       await this.mailjet.post('send', { version: 'v3.1' }).request({

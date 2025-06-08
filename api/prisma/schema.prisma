@@ -31,6 +31,8 @@ model User {
   isEmailConfirmed    Boolean  @default(false)
   confirmationToken   String?  @unique
   confirmationSentAt  DateTime?
+  resetPasswordToken   String?  @unique
+  resetPasswordSentAt  DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

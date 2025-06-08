@@ -65,6 +65,18 @@ export class UserService {
       .pipe(map((res) => this.unwrap(res)));
   }
 
+  forgotPassword(payload: any): Observable<User> {
+    return this.http
+      .post<ApiResponse<User>>(`${this.endpoint}/reset-password`, payload)
+      .pipe(map((res) => this.unwrap(res)));
+  }
+
+  confirmforgotPassword(payload: any): Observable<User> {
+    return this.http
+      .post<ApiResponse<User>>(`${this.endpoint}/confirm-reset-password`, payload)
+      .pipe(map((res) => this.unwrap(res)));
+  }
+
   resendEmailConfirm(payload: any): Observable<User> {
     return this.http
       .post<ApiResponse<User>>(`${this.endpoint}/resend-confirmation`, payload)

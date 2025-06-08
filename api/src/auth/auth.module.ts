@@ -8,6 +8,7 @@ import { RefreshStrategy } from './strategies/refresh.strategy';
 import { UsersModule } from '../users/users.module';
 import { UsersService } from 'src/users/users.service';
 import { MailModule } from 'src/mail/mail.module';
+import { RateLimiterModule } from 'nestjs-rate-limiter';
 
 
 @Module({
@@ -15,6 +16,7 @@ import { MailModule } from 'src/mail/mail.module';
     PassportModule,
     UsersModule,
     MailModule,
+    RateLimiterModule,
     JwtModule.register({
       secret: process.env.JWT_ACCESS_SECRET,
       signOptions: { expiresIn: '15m' },

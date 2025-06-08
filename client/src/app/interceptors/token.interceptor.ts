@@ -73,7 +73,9 @@ export class TokenInterceptor implements HttpInterceptor {
   { method: 'POST', urlEnd: '/api/v1/auth/refresh' },
   { method: 'POST', urlEnd: '/api/v1/users' },
   { method: 'POST', urlEnd: '/api/v1/users/resend-confirmation' },
-  { method: 'POST', urlEnd: '/api/v1/users/confirm' }
+  { method: 'POST', urlEnd: '/api/v1/users/confirm' },
+  { method: 'POST', urlEnd: '/api/v1/users/reset-password' },
+  { method: 'POST', urlEnd: '/api/v1/users/confirm-reset-password' }
   // Ajoute ici d'autres exceptions si besoin
 ];
 

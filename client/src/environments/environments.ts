@@ -4,6 +4,6 @@ export const environment = {
     apiBaseUrl: 'http://localhost:3000',
     apiVersion: '/api/v1',
     logLevel: 'debug',
-    appName: "Ymoia"
+    appName: "Immo"
   };
   

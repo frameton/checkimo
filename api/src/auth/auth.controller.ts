@@ -16,6 +16,8 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RefreshGuard } from './guards/refresh.guard';
 import { AuthPayloadDto } from './dto/auth-payload.dto';
 import { UsersService } from '../users/users.service';
+import { RateLimiterGuard } from 'nestjs-rate-limiter';
+
 
 @Controller('auth')
 export class AuthController {
@@ -29,6 +31,7 @@ export class AuthController {
    * Retourne AuthPayload { accessToken } enveloppé par ApiSuccessInterceptor
    */
   @Post('login')
+  @UseGuards(RateLimiterGuard)
   @HttpCode(200)
   async login(
     @Body() dto: LoginDto,

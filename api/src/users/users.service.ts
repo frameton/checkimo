@@ -8,6 +8,7 @@ import { randomUUID } from 'crypto';
 import { MailService } from 'src/mail/mail.service';
 
 const RESEND_CONFIRMATION_COOLDOWN_MS = 1 * 60 * 1000; // 2 minutes
+const RESET_TOKEN_EXPIRE_MINUTES = 60;
 
 @Injectable()
 export class UsersService {
@@ -43,6 +44,49 @@ export class UsersService {
       await this.prisma.user.delete({ where: { id: user.id } });
       throw new Error("Erreur lors de l’envoi du mail de confirmation. Aucun compte créé.");
     }
+  }
+
+  async sendResetPasswordEmail(email: string) {
+    const genericMsg = "Si ce compte existe, un email de réinitialisation a été envoyé.";
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    if (!user) return { message: genericMsg };
+
+    // Garde la réponse neutre même si déjà un token
+    const resetToken = randomUUID();
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        resetPasswordToken: resetToken,
+        resetPasswordSentAt: new Date(),
+      },
+    });
+
+    await this.mailService.sendResetPasswordEmail(user.email, resetToken);
+
+    return { message: genericMsg };
+  }
+
+
+  async resetPassword(token: string, newPassword: string) {
+    const user = await this.prisma.user.findUnique({ where: { resetPasswordToken: token } });
+    if (!user) return { success: false, message: "Lien invalide ou expiré." };
+
+    const now = new Date();
+    if (!user.resetPasswordSentAt ||
+        (now.getTime() - user.resetPasswordSentAt.getTime()) > RESET_TOKEN_EXPIRE_MINUTES * 60 * 1000
+    ) {
+      return { success: false, message: "Lien invalide ou expiré." };
+    }
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: await argon2.hash(newPassword),
+        resetPasswordToken: null,
+        resetPasswordSentAt: null,
+      },
+    });
+
+    return { success: true, message: "Votre mot de passe a été réinitialisé avec succès." };
   }
 
 

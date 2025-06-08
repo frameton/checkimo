@@ -1,5 +1,6 @@
-<div class="loginWrapper" *ngIf="mode === 'login'">
-  <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="form">
+<div class="loginWrapper" *ngIf="mode === 'login' || mode === 'forgotPassword'">
+  <ng-container *ngIf="mode === 'login'">
+    <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="form">
         <h2>Connexion</h2>
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Email</mat-label>
@@ -15,14 +16,39 @@
             Mot de passe requis.
           </mat-error>
         </mat-form-field>
-        <button class="app-btn blue-btn" color="primary" type="submit" [disabled]="loginForm.invalid">
+        <button class="app-btn blue-btn" color="primary" type="submit" [disabled]="loginForm.invalid || isLoading || loginBlocked">
           Se connecter
+          <div *ngIf="loginError" class="advertConfirm">&#9432;&nbsp;Pensez à valider votre compte via le mail reçu à l'inscription avant toute connexion.</div>
+          <p class="loginError">{{ loginError }}</p>
+          <span class="smallLoader" *ngIf="isLoading"></span>
         </button>
-  </form>
-  <div class="loginLinks">
-    <p>Pas encore inscrit ? <span (click)="switchMode('register')">Inscrivez-vous.</span></p>
-    <span (click)="switchMode('forgotPassword')">J'ai oublié mon mot de passe.</span>
-  </div>
+    </form>
+    <div class="loginLinks">
+      <p>Pas encore inscrit ? <span (click)="switchMode('register')">Inscrivez-vous.</span></p>
+      <span (click)="switchMode('forgotPassword')">J'ai oublié mon mot de passe.</span>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="mode === 'forgotPassword'">
+    <form [formGroup]="forgotPasswordForm" (ngSubmit)="onForgotPassword()" class="form">
+      <h2>Mot de passe oublié</h2>
+      <mat-form-field appearance="outline" *ngIf="!forgotPasswordSuccess" class="full-width">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" type="email" autocomplete="email">
+        <mat-error *ngIf="forgotPasswordForm.get('email')?.invalid && forgotPasswordForm.get('email')?.touched">
+          Email requis ou invalide.
+        </mat-error>
+      </mat-form-field>
+      <button class="app-btn blue-btn" color="primary" type="submit" *ngIf="!forgotPasswordSuccess" [disabled]="forgotPasswordForm.invalid || isLoading">
+        Réinitialiser le mot de passe
+        <span class="smallLoader" *ngIf="isLoading"></span>
+        <p class="forgotPasswordError">{{ forgotPasswordError }}</p>
+      </button>
+      <div *ngIf="forgotPasswordSuccess" class="forgotPasswordSuccess">{{ forgotPasswordSuccess }}</div>
+    </form>
+    <div class="loginLinks">
+      <p><span (click)="switchMode('login')">Retour connexion.</span></p>
+    </div>
+  </ng-container>
 </div>
 
 <div class="registerWrapper" *ngIf="mode === 'register'">

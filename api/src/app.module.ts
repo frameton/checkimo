@@ -5,7 +5,8 @@ import { UsersModule } from './users/users.module';
 import { PrismaModule } from 'prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
-import { MailService } from './mail/mail.service';
+import { RateLimiterModule } from 'nestjs-rate-limiter';
+
 
 @Module({
   imports: [
@@ -21,7 +22,14 @@ import { MailService } from './mail/mail.service';
       if (!env.JWT_REFRESH_SECRET) throw new Error('JWT_REFRESH_SECRET missing');
       return env;
     },
-  }),],
+  }),
+  RateLimiterModule.register({
+      for: 'Express',
+      type: 'Memory',         // ou 'Redis' pour le multi-instance
+      points: 5,              // Nombre d'essais autorisés
+      duration: 60,           // Période (en secondes) : ici 5 essais/minute
+    }),
+  ],
   controllers: [AppController],
   providers: [
     AppService

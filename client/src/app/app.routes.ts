@@ -8,6 +8,7 @@ import { NotFoundComponent } from './views/not-found/not-found.component';
 import { LandingComponent } from './views/landing/landing.component';
 import { LoginRegisterComponent } from './views/login-register/login-register.component';
 import { ConfirmAccountComponent } from './views/confirm-account/confirm-account.component';
+import { ResetPasswordComponent } from './views/reset-password/reset-password.component';
 
 export const routes: Routes = [
 //   { path: '', component: HomeComponent },
@@ -26,6 +27,11 @@ export const routes: Routes = [
   {
     path: 'confirm-account',
     component: ConfirmAccountComponent
+  },
+
+  {
+    path: 'reset-password',
+    component: ResetPasswordComponent 
   },
 
 
